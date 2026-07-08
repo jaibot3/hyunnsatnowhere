@@ -13,13 +13,12 @@
         /* 오려낸 돌 조각. 평상시엔 원본 위에 완벽히 겹쳐 있어 안 보임 */
         .stone {
             cursor: pointer;
-            /* 느리게: 0.9초. 자연스러운 감속 곡선 */
-            transition: transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1),
-                        filter 0.9s ease;
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+                        filter 0.4s ease;
         }
-        /* hover: 천천히 커지면서 오른쪽으로 슬라이드 + 부드러운 그림자 + 밝기 */
+        /* hover 시 해당 돌 픽셀만 떠오름: 확대 + 살짝 위로 + 그림자 + 밝기 */
         .stone:hover {
-            transform: translateX(24px) scale(1.05);
+            transform: translateY(-12px) scale(1.05);
             filter: url(#lift) brightness(1.12) saturate(1.08);
         }
     </style>
@@ -30,28 +29,15 @@
         <svg viewBox="0 0 1440 1174" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
 
             <defs>
-                <!-- 가장자리를 뿌옇게 만드는 블러 (stdDeviation 값 = 블러 세기) -->
-                <filter id="feather" x="-25%" y="-25%" width="150%" height="150%">
-                    <feGaussianBlur stdDeviation="7"/>
-                </filter>
+                <!-- 각 돌 모양을 오려낼 clip 정의 (네 원본 path 그대로) -->
+                <clipPath id="clip1"><path d="M1037 723H1097C1112.33 719.667 1152.6 713 1191 713C1239 713 1237 723 1247 723C1257 723 1273 723 1313 745C1353 767 1359 781 1373 819C1387 857 1369 859 1359 897C1349 935 1355 935 1341 977C1327 1019 1297 1023 1273 1047C1249 1071 1185 1101 1129 1101C1084.2 1101 991.667 1085 951 1077L919 1047C902.333 1043.67 863 1034.2 839 1023C809 1009 751 909 763 845C775 781 811 755 853 735C886.6 719 932.333 713.667 951 713C975.667 716.333 1027.4 723 1037 723Z"/></clipPath>
+                <clipPath id="clip2"><path d="M780.5 404C808 394 814.5 380.5 830.5 372.5C847.667 366.5 889.6 354.5 920 354.5C958 354.5 979.5 362.5 1001.5 384.5C1023.5 406.5 1053 404 1053 434C1053 464 1057 497.5 1053 527.5C1049 557.5 1045.5 563.5 1017.5 581.5C989.5 599.5 926 617 882 617C838 617 780.5 629 749 617C717.5 605 715 585.5 703 563.5C691 541.5 685 525.5 687 486C689 446.5 707 444 715 434C723 424 753 414 780.5 404Z"/></clipPath>
+                <clipPath id="clip3"><path d="M496 310.5C480 276.5 490 239 512 195C520.667 187.833 541.5 170.3 555.5 157.5C573 141.5 587.5 137.5 619.5 115.5C651.5 93.5 701 74 776.5 52C852 30 840.5 42 894 52C947.5 62 944 90 961.5 115.5C979 141 953.5 195 944 223C934.5 251 904 296.5 840.5 328.5C777 360.5 713 378.5 643.5 378.5C574 378.5 512 344.5 496 310.5Z"/></clipPath>
+                <clipPath id="clip4"><path d="M209.5 752.5C285 748.5 255 758.5 293 766.5C303 771.167 329 777.7 353 766.5C383 752.5 438.5 792 438.5 812C438.5 832 442.5 854 438.5 870C434.5 886 416.5 951.5 394.5 983.5C372.5 1015.5 325 1053 293 1065C261 1077 185.5 1051 146 1039C106.5 1027 80 963.5 62 923.5C44 883.5 68 800 100 766.5C132 733 134 756.5 209.5 752.5Z"/></clipPath>
 
-                <!-- 각 돌 모양 마스크: 흰색 path에 블러를 먹여 가장자리를 페이드 -->
-                <mask id="mask1" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="1174">
-                    <path fill="#fff" filter="url(#feather)" d="M1037 723H1097C1112.33 719.667 1152.6 713 1191 713C1239 713 1237 723 1247 723C1257 723 1273 723 1313 745C1353 767 1359 781 1373 819C1387 857 1369 859 1359 897C1349 935 1355 935 1341 977C1327 1019 1297 1023 1273 1047C1249 1071 1185 1101 1129 1101C1084.2 1101 991.667 1085 951 1077L919 1047C902.333 1043.67 863 1034.2 839 1023C809 1009 751 909 763 845C775 781 811 755 853 735C886.6 719 932.333 713.667 951 713C975.667 716.333 1027.4 723 1037 723Z"/>
-                </mask>
-                <mask id="mask2" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="1174">
-                    <path fill="#fff" filter="url(#feather)" d="M780.5 404C808 394 814.5 380.5 830.5 372.5C847.667 366.5 889.6 354.5 920 354.5C958 354.5 979.5 362.5 1001.5 384.5C1023.5 406.5 1053 404 1053 434C1053 464 1057 497.5 1053 527.5C1049 557.5 1045.5 563.5 1017.5 581.5C989.5 599.5 926 617 882 617C838 617 780.5 629 749 617C717.5 605 715 585.5 703 563.5C691 541.5 685 525.5 687 486C689 446.5 707 444 715 434C723 424 753 414 780.5 404Z"/>
-                </mask>
-                <mask id="mask3" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="1174">
-                    <path fill="#fff" filter="url(#feather)" d="M496 310.5C480 276.5 490 239 512 195C520.667 187.833 541.5 170.3 555.5 157.5C573 141.5 587.5 137.5 619.5 115.5C651.5 93.5 701 74 776.5 52C852 30 840.5 42 894 52C947.5 62 944 90 961.5 115.5C979 141 953.5 195 944 223C934.5 251 904 296.5 840.5 328.5C777 360.5 713 378.5 643.5 378.5C574 378.5 512 344.5 496 310.5Z"/>
-                </mask>
-                <mask id="mask4" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="1174">
-                    <path fill="#fff" filter="url(#feather)" d="M209.5 752.5C285 748.5 255 758.5 293 766.5C303 771.167 329 777.7 353 766.5C383 752.5 438.5 792 438.5 812C438.5 832 442.5 854 438.5 870C434.5 886 416.5 951.5 394.5 983.5C372.5 1015.5 325 1053 293 1065C261 1077 185.5 1051 146 1039C106.5 1027 80 963.5 62 923.5C44 883.5 68 800 100 766.5C132 733 134 756.5 209.5 752.5Z"/>
-                </mask>
-
-                <!-- 떠오를 때 깔리는 부드러운 그림자 -->
-                <filter id="lift" x="-50%" y="-50%" width="200%" height="200%">
-                    <feDropShadow dx="6" dy="20" stdDeviation="22" flood-color="black" flood-opacity="0.75"/>
+                <!-- 떠오를 때 깔리는 입체 그림자 -->
+                <filter id="lift" x="-40%" y="-40%" width="180%" height="180%">
+                    <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="black" flood-opacity="0.8"/>
                 </filter>
             </defs>
 
@@ -59,35 +45,31 @@
             <image href="352305721_1427453747988236_5504768731062878759_n.jpg"
                    x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"/>
 
-            <!-- 2) 그 위에 '가장자리가 흐린 돌 조각'들 = 같은 이미지를 mask로 페더링해 정확히 포갬 -->
-            <!-- 확대/이동 기준점(transform-origin)은 각 돌의 중심 좌표(view-box 기준) -->
+            <!-- 2) 그 위에 '오려낸 돌 조각'들 = 같은 이미지를 clip으로 잘라 정확히 포갬 -->
+            <!-- transform-origin은 각 돌의 중심 좌표(view-box 기준). 이게 있어야 제 자리에서 커짐 -->
             <a href="https://github.com/link1" target="_blank">
-                <g class="stone" style="transform-origin:1070px 907px;">
-                    <image href="352305721_1427453747988236_5504768731062878759_n.jpg"
-                           x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"
-                           mask="url(#mask1)"/>
-                </g>
+                <image class="stone" style="transform-origin:1070px 907px;"
+                       href="352305721_1427453747988236_5504768731062878759_n.jpg"
+                       x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"
+                       clip-path="url(#clip1)"/>
             </a>
             <a href="https://github.com/link2" target="_blank">
-                <g class="stone" style="transform-origin:872px 492px;">
-                    <image href="352305721_1427453747988236_5504768731062878759_n.jpg"
-                           x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"
-                           mask="url(#mask2)"/>
-                </g>
+                <image class="stone" style="transform-origin:872px 492px;"
+                       href="352305721_1427453747988236_5504768731062878759_n.jpg"
+                       x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"
+                       clip-path="url(#clip2)"/>
             </a>
             <a href="https://github.com/link3" target="_blank">
-                <g class="stone" style="transform-origin:729px 215px;">
-                    <image href="352305721_1427453747988236_5504768731062878759_n.jpg"
-                           x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"
-                           mask="url(#mask3)"/>
-                </g>
+                <image class="stone" style="transform-origin:729px 215px;"
+                       href="352305721_1427453747988236_5504768731062878759_n.jpg"
+                       x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"
+                       clip-path="url(#clip3)"/>
             </a>
             <a href="https://github.com/link4" target="_blank">
-                <g class="stone" style="transform-origin:250px 909px;">
-                    <image href="352305721_1427453747988236_5504768731062878759_n.jpg"
-                           x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"
-                           mask="url(#mask4)"/>
-                </g>
+                <image class="stone" style="transform-origin:250px 909px;"
+                       href="352305721_1427453747988236_5504768731062878759_n.jpg"
+                       x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"
+                       clip-path="url(#clip4)"/>
             </a>
 
         </svg>
