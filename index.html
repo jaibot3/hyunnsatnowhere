@@ -9,7 +9,7 @@
         .art-container { position: relative; width: 1000px; max-width: 100%; }
         .art-container svg { width: 100%; height: auto; display: block; }
         .title {
-            position: fixed; top: 24px; left: 32px; margin: 0;
+            position: fixed; top: 0px; left: 6px; margin: 0;
             font-family: 'Helvetica Neue', Arial, sans-serif;
             font-weight: 700; font-size: 70px; line-height: 1;
             color: #1a1a1a; letter-spacing: 0.01em;
@@ -51,24 +51,41 @@
                     <feGaussianBlur stdDeviation="8"/>
                 </filter>
 
+                <!-- 별 자체의 은은한 앰비언트 광 -->
+                <radialGradient id="starRadial">
+                    <stop offset="0" stop-color="#ffffff" stop-opacity="1"/>
+                    <stop offset="45%" stop-color="#f4f1e8" stop-opacity="0.5"/>
+                    <stop offset="100%" stop-color="#f4f1e8" stop-opacity="0"/>
+                </radialGradient>
+                <!-- 별 실루엣을 부드럽게 빛나게 하는 글로우 필터 -->
+                <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+                    <feGaussianBlur stdDeviation="5" result="blur1"/>
+                    <feGaussianBlur in="blur1" stdDeviation="9" result="blur2"/>
+                    <feMerge>
+                        <feMergeNode in="blur2"/>
+                        <feMergeNode in="blur1"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+
                 <filter id="lift" x="-40%" y="-40%" width="180%" height="180%">
                     <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="black" flood-opacity="0.55"/>
                 </filter>
             </defs>
 
-            <image href="352305721_1427453747988236_5504768731062878759_n.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"/>
+            <image href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"/>
 
             <a class="stone-link" href="https://github.com/link1" data-x="1070" data-y="907">
-                <image class="stone" style="transform-origin:1070px 907px;" href="352305721_1427453747988236_5504768731062878759_n.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" clip-path="url(#clip1)"/>
+                <image class="stone" style="transform-origin:1070px 907px;" href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" clip-path="url(#clip1)"/>
             </a>
             <a class="stone-link" href="https://github.com/link2" data-x="872" data-y="492">
-                <image class="stone" style="transform-origin:872px 492px;" href="352305721_1427453747988236_5504768731062878759_n.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" clip-path="url(#clip2)"/>
+                <image class="stone" style="transform-origin:872px 492px;" href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" clip-path="url(#clip2)"/>
             </a>
             <a class="stone-link" href="https://github.com/link3" data-x="729" data-y="215">
-                <image class="stone" style="transform-origin:729px 215px;" href="352305721_1427453747988236_5504768731062878759_n.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" clip-path="url(#clip3)"/>
+                <image class="stone" style="transform-origin:729px 215px;" href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" clip-path="url(#clip3)"/>
             </a>
             <a class="stone-link" href="https://github.com/link4" data-x="250" data-y="909">
-                <image class="stone" style="transform-origin:250px 909px;" href="352305721_1427453747988236_5504768731062878759_n.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" clip-path="url(#clip4)"/>
+                <image class="stone" style="transform-origin:250px 909px;" href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" clip-path="url(#clip4)"/>
             </a>
 
             <!-- 혜성 꼬리(부드러운 플룸) + 머리 글로우 -->
@@ -77,13 +94,13 @@
                 <circle id="hglow" cx="0" cy="0" r="50" fill="url(#headGlow)" filter="url(#soften)"/>
             </g>
 
-            <!-- 점묘화 별 + 광선 -->
+            <!-- 별: 점묘 대신 글로우로 채움. JS가 채움 -->
             <g id="star" pointer-events="none" transform="translate(720 250) scale(0.5)"></g>
 
         </svg>
     </div>
 
-    <div class="title">HYNNE</div>
+    <div class="title">HYUNNE at Nowhere</div>
 
     <script>
         const NS = 'http://www.w3.org/2000/svg';
@@ -101,60 +118,30 @@
         const V0 = 1.5, ACCEL = 0.16, VMAX = 10;
 
         // 꼬리 성장
-        const GROW = 0.95, MAXLEN = 260, TAILW = 30;
+        const GROW = 0.95, MAXLEN = 500, TAILW = 30;
 
         function rnd(a, b) { return a + Math.random() * (b - a); }
         function polar(deg, rad) { const r = deg * Math.PI / 180; return [Math.cos(r) * rad, Math.sin(r) * rad]; }
 
-        // 별 폴리곤 (손그림 랜덤)
+        // 별 폴리곤 (손그림 랜덤한 5각별 윤곽)
         const verts = [];
         for (let i = 0; i < 5; i++) {
             verts.push(polar(-90 + i * 72 + rnd(-8, 8), 40 * rnd(0.82, 1.16)));
             verts.push(polar(-90 + i * 72 + 36 + rnd(-9, 9), 17 * rnd(0.72, 1.32)));
         }
-        function inPoly(px, py, poly) {
-            let inside = false;
-            for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-                const xi = poly[i][0], yi = poly[i][1], xj = poly[j][0], yj = poly[j][1];
-                if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) inside = !inside;
-            }
-            return inside;
-        }
 
-        // 방사 광선 (평소)
-        const rays = [];
-        for (let i = 0; i < 20; i++) {
-            const ang = rnd(0, 360), s = rnd(42, 54), len = rnd(7, 44);
-            const [x1, y1] = polar(ang, s);
-            const [x2, y2] = polar(ang, s + len);
-            const ln = document.createElementNS(NS, 'line');
-            ln.setAttribute('x1', x1.toFixed(1)); ln.setAttribute('y1', y1.toFixed(1));
-            ln.setAttribute('x2', x2.toFixed(1)); ln.setAttribute('y2', y2.toFixed(1));
-            ln.setAttribute('stroke', '#ffffff');
-            ln.setAttribute('stroke-width', rnd(0.8, 1.8).toFixed(2));
-            ln.setAttribute('stroke-linecap', 'round');
-            ln._baseOp = rnd(0.35, 0.85); ln._ph = rnd(0, 6.28);
-            star.appendChild(ln);
-            rays.push(ln);
-        }
+        // 별 = 은은한 앰비언트 원(뒤) + 글로우 필터 먹인 실루엣(위)
+        const starAmbient = document.createElementNS(NS, 'circle');
+        starAmbient.setAttribute('cx', 0); starAmbient.setAttribute('cy', 0);
+        starAmbient.setAttribute('r', 40);
+        starAmbient.setAttribute('fill', 'url(#starRadial)');
+        star.appendChild(starAmbient);
 
-        // 점묘화 별
-        (function buildStipple() {
-            let minX = 99, maxX = -99, minY = 99, maxY = -99;
-            for (const v of verts) { minX = Math.min(minX, v[0]); maxX = Math.max(maxX, v[0]); minY = Math.min(minY, v[1]); maxY = Math.max(maxY, v[1]); }
-            let placed = 0, tries = 0;
-            while (placed < 165 && tries < 9000) {
-                tries++;
-                const px = rnd(minX, maxX), py = rnd(minY, maxY);
-                if (!inPoly(px, py, verts)) continue;
-                const c = document.createElementNS(NS, 'circle');
-                c.setAttribute('cx', px.toFixed(1)); c.setAttribute('cy', py.toFixed(1));
-                c.setAttribute('r', rnd(1.2, 2.8).toFixed(2)); c.setAttribute('fill', '#f6f3ec');
-                c.setAttribute('opacity', rnd(0.55, 1).toFixed(2));
-                star.appendChild(c);
-                placed++;
-            }
-        })();
+        const starShape = document.createElementNS(NS, 'path');
+        starShape.setAttribute('d', 'M' + verts.map(function (p) { return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' L') + ' Z');
+        starShape.setAttribute('fill', '#fbf8f1');
+        starShape.setAttribute('filter', 'url(#glow)');
+        star.appendChild(starShape);
 
         let g = 1;
         let running = false;
@@ -171,14 +158,15 @@
         function frame(now) {
             const t = (now - t0) / 1000;
             const spin = t * 5;
-            const tw = 1 + Math.sin(t * 2.2) * 0.07;
+
+            // 숨쉬는 글로우: 우웅우웅 켜졌다 사라졌다
+            const breathe = (Math.sin(t * 1.0) + 1) / 2;               // 0..1, 느린 주기(약 6.3초)
+            const glowPulse = 0.15 + 0.85 * Math.pow(breathe, 1.5);
+            starAmbient.setAttribute('opacity', glowPulse.toFixed(3));
+            starAmbient.setAttribute('r', (30 + 24 * breathe).toFixed(1));
+            starShape.setAttribute('opacity', (0.35 + 0.65 * glowPulse).toFixed(3));
 
             g += ((sailing ? 0 : 1) - g) * 0.15;
-
-            for (const rL of rays) {
-                const tk = rL._baseOp * (0.55 + 0.45 * Math.sin(t * 3 + rL._ph));
-                rL.setAttribute('opacity', (tk * g).toFixed(3));
-            }
 
             let tailDeg = 0, trailOp = 0;
 
@@ -188,7 +176,7 @@
                 tailDeg = Math.atan2(dirY, dirX) * 180 / Math.PI + 180;
                 if (traveled >= totalDist) {
                     running = false;
-                    star.setAttribute('transform', 'translate(' + (sx + dirX * totalDist) + ' ' + (sy + dirY * totalDist) + ') rotate(' + spin + ') scale(' + (SIZE * tw) + ')');
+                    star.setAttribute('transform', 'translate(' + (sx + dirX * totalDist) + ' ' + (sy + dirY * totalDist) + ') rotate(' + spin + ') scale(' + SIZE + ')');
                     trail.setAttribute('opacity', 0);
                     window.location.href = href;
                     return;
@@ -203,8 +191,8 @@
             }
 
             if ((1 - g) > 0.01) {
-                const L = Math.max(30, Math.min(MAXLEN, traveled * GROW)); // 이동할수록 길어짐
-                const W = TAILW * (0.6 + 0.4 * Math.min(1, L / MAXLEN));   // 살짝 넓어짐
+                const L = Math.max(30, Math.min(MAXLEN, traveled * GROW));
+                const W = TAILW * (0.6 + 0.4 * Math.min(1, L / MAXLEN));
                 plume.setAttribute('d', plumePath(L, W));
                 trail.setAttribute('transform', 'translate(' + x + ' ' + y + ') rotate(' + tailDeg + ') scale(' + SIZE + ')');
                 trail.setAttribute('opacity', ((1 - g) * trailOp).toFixed(3));
@@ -212,7 +200,7 @@
                 trail.setAttribute('opacity', 0);
             }
 
-            star.setAttribute('transform', 'translate(' + x + ' ' + y + ') rotate(' + spin + ') scale(' + (SIZE * tw) + ')');
+            star.setAttribute('transform', 'translate(' + x + ' ' + y + ') rotate(' + spin + ') scale(' + SIZE + ')');
             requestAnimationFrame(frame);
         }
 
