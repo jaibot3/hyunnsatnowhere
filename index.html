@@ -9,7 +9,7 @@
         .art-container { position: relative; width: 1000px; max-width: 100%; }
         .art-container svg { width: 100%; height: auto; display: block; }
         .title {
-            position: absolute; top: 18px; left: 24px; margin: 0;
+            position: fixed; top: 24px; left: 32px; margin: 0;
             font-family: 'Helvetica Neue', Arial, sans-serif;
             font-weight: 700; font-size: 70px; line-height: 1;
             color: #1a1a1a; letter-spacing: 0.01em;
@@ -36,6 +36,21 @@
                 <clipPath id="clip3"><path d="M496 310.5C480 276.5 490 239 512 195C520.667 187.833 541.5 170.3 555.5 157.5C573 141.5 587.5 137.5 619.5 115.5C651.5 93.5 701 74 776.5 52C852 30 840.5 42 894 52C947.5 62 944 90 961.5 115.5C979 141 953.5 195 944 223C934.5 251 904 296.5 840.5 328.5C777 360.5 713 378.5 643.5 378.5C574 378.5 512 344.5 496 310.5Z"/></clipPath>
                 <clipPath id="clip4"><path d="M209.5 752.5C285 748.5 255 758.5 293 766.5C303 771.167 329 777.7 353 766.5C383 752.5 438.5 792 438.5 812C438.5 832 442.5 854 438.5 870C434.5 886 416.5 951.5 394.5 983.5C372.5 1015.5 325 1053 293 1065C261 1077 185.5 1051 146 1039C106.5 1027 80 963.5 62 923.5C44 883.5 68 800 100 766.5C132 733 134 756.5 209.5 752.5Z"/></clipPath>
 
+                <radialGradient id="headGlow">
+                    <stop offset="0" stop-color="#fff6ee" stop-opacity="0.95"/>
+                    <stop offset="32%" stop-color="#f3cbba" stop-opacity="0.55"/>
+                    <stop offset="100%" stop-color="#e7b6c8" stop-opacity="0"/>
+                </radialGradient>
+                <linearGradient id="cometTail" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0" stop-color="#f4ddd0" stop-opacity="0.85"/>
+                    <stop offset="13%" stop-color="#dfcae0" stop-opacity="0.55"/>
+                    <stop offset="55%" stop-color="#cdbcd8" stop-opacity="0.24"/>
+                    <stop offset="100%" stop-color="#cdbcd8" stop-opacity="0"/>
+                </linearGradient>
+                <filter id="soften" x="-40%" y="-60%" width="180%" height="220%">
+                    <feGaussianBlur stdDeviation="8"/>
+                </filter>
+
                 <filter id="lift" x="-40%" y="-40%" width="180%" height="180%">
                     <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="black" flood-opacity="0.55"/>
                 </filter>
@@ -56,21 +71,25 @@
                 <image class="stone" style="transform-origin:250px 909px;" href="352305721_1427453747988236_5504768731062878759_n.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" clip-path="url(#clip4)"/>
             </a>
 
-            <!-- 포물선 꼬리 라인. JS가 채움 -->
-            <g id="trail" pointer-events="none" opacity="0"></g>
+            <!-- 혜성 꼬리(부드러운 플룸) + 머리 글로우 -->
+            <g id="trail" pointer-events="none" opacity="0">
+                <path id="plume" fill="url(#cometTail)" filter="url(#soften)"/>
+                <circle id="hglow" cx="0" cy="0" r="50" fill="url(#headGlow)" filter="url(#soften)"/>
+            </g>
 
-            <!-- 점묘화 별 + 광선. JS가 채움 -->
+            <!-- 점묘화 별 + 광선 -->
             <g id="star" pointer-events="none" transform="translate(720 250) scale(0.5)"></g>
 
         </svg>
-
-        <div class="title">HYNNE</div>
     </div>
+
+    <div class="title">HYNNE</div>
 
     <script>
         const NS = 'http://www.w3.org/2000/svg';
         const star = document.getElementById('star');
         const trail = document.getElementById('trail');
+        const plume = document.getElementById('plume');
 
         const homeX = 720, homeY = 250;
         let x = homeX, y = homeY;
@@ -82,7 +101,7 @@
         const V0 = 1.5, ACCEL = 0.16, VMAX = 10;
 
         // 꼬리 성장
-        const GROW = 0.9, MAXLEN = 230;
+        const GROW = 0.95, MAXLEN = 260, TAILW = 30;
 
         function rnd(a, b) { return a + Math.random() * (b - a); }
         function polar(deg, rad) { const r = deg * Math.PI / 180; return [Math.cos(r) * rad, Math.sin(r) * rad]; }
@@ -137,28 +156,17 @@
             }
         })();
 
-        // 포물선 꼬리 라인 6개
-        const tails = [];
-        const NT = 6;
-        for (let i = 0; i < NT; i++) {
-            const p = document.createElementNS(NS, 'path');
-            p.setAttribute('stroke', '#ffffff');
-            p.setAttribute('fill', 'none');
-            p.setAttribute('stroke-width', rnd(0.9, 2).toFixed(2));
-            p.setAttribute('stroke-linecap', 'round');
-            p._fan = (i - (NT - 1) / 2) * (13 * Math.PI / 180) + rnd(-0.04, 0.04); // 부채꼴 각
-            p._lenMul = rnd(0.5, 1.25);   // 길이 랜덤
-            p._bow = rnd(-0.26, 0.26);    // 휘는 정도
-            p._op = rnd(0.5, 0.95);
-            p._ph = rnd(0, 6.28);
-            trail.appendChild(p);
-            tails.push(p);
-        }
-
-        let g = 1;              // 1=평소, 0=이동중
+        let g = 1;
         let running = false;
-
         const t0 = performance.now();
+
+        function plumePath(L, W) {
+            return 'M0 -7'
+                + ' Q ' + (L * 0.28) + ' ' + (-W) + ' ' + (L * 0.6) + ' ' + (-W * 0.62)
+                + ' Q ' + (L * 0.88) + ' ' + (-W * 0.22) + ' ' + L + ' 0'
+                + ' Q ' + (L * 0.88) + ' ' + (W * 0.22) + ' ' + (L * 0.6) + ' ' + (W * 0.62)
+                + ' Q ' + (L * 0.28) + ' ' + W + ' 0 7 Z';
+        }
 
         function frame(now) {
             const t = (now - t0) / 1000;
@@ -188,25 +196,16 @@
                 x = sx + dirX * traveled;
                 y = sy + dirY * traveled;
                 const remain = totalDist - traveled;
-                trailOp = Math.min(1, Math.min(traveled, remain) / 120);
+                trailOp = Math.min(1, Math.min(traveled, remain) / 130);
             } else {
                 x = homeX + Math.sin(t * 0.18) * 200;
                 y = homeY + Math.sin(t * 0.5) * 14 + Math.sin(t * 0.31) * 8;
             }
 
-            // 포물선 꼬리 갱신 (전체 길이 = 이동거리에 비례해 성장)
             if ((1 - g) > 0.01) {
-                const L = Math.min(MAXLEN, traveled * GROW);
-                for (const p of tails) {
-                    const len = L * p._lenMul;
-                    const ca = Math.cos(p._fan), sa = Math.sin(p._fan);
-                    const ex = len * ca, ey = len * sa;
-                    const perpx = -sa, perpy = ca;
-                    const b = p._bow * len;
-                    const cx = ex / 2 + perpx * b, cy = ey / 2 + perpy * b;
-                    p.setAttribute('d', 'M0 0 Q ' + cx.toFixed(1) + ' ' + cy.toFixed(1) + ' ' + ex.toFixed(1) + ' ' + ey.toFixed(1));
-                    p.setAttribute('opacity', (p._op * (0.7 + 0.3 * Math.sin(t * 6 + p._ph))).toFixed(3));
-                }
+                const L = Math.max(30, Math.min(MAXLEN, traveled * GROW)); // 이동할수록 길어짐
+                const W = TAILW * (0.6 + 0.4 * Math.min(1, L / MAXLEN));   // 살짝 넓어짐
+                plume.setAttribute('d', plumePath(L, W));
                 trail.setAttribute('transform', 'translate(' + x + ' ' + y + ') rotate(' + tailDeg + ') scale(' + SIZE + ')');
                 trail.setAttribute('opacity', ((1 - g) * trailOp).toFixed(3));
             } else {
@@ -223,7 +222,6 @@
             requestAnimationFrame(frame);
         }
 
-        // 뒤로가기(bfcache 복원) 시 상태 초기화 + 루프 재시작
         window.addEventListener('pageshow', function () {
             sailing = false; traveled = 0; vel = 0; g = 1;
             x = homeX; y = homeY;
