@@ -29,11 +29,6 @@
                 <clipPath id="clip3"><path d="M496 310.5C480 276.5 490 239 512 195C520.667 187.833 541.5 170.3 555.5 157.5C573 141.5 587.5 137.5 619.5 115.5C651.5 93.5 701 74 776.5 52C852 30 840.5 42 894 52C947.5 62 944 90 961.5 115.5C979 141 953.5 195 944 223C934.5 251 904 296.5 840.5 328.5C777 360.5 713 378.5 643.5 378.5C574 378.5 512 344.5 496 310.5Z"/></clipPath>
                 <clipPath id="clip4"><path d="M209.5 752.5C285 748.5 255 758.5 293 766.5C303 771.167 329 777.7 353 766.5C383 752.5 438.5 792 438.5 812C438.5 832 442.5 854 438.5 870C434.5 886 416.5 951.5 394.5 983.5C372.5 1015.5 325 1053 293 1065C261 1077 185.5 1051 146 1039C106.5 1027 80 963.5 62 923.5C44 883.5 68 800 100 766.5C132 733 134 756.5 209.5 752.5Z"/></clipPath>
 
-                <linearGradient id="trailGrad" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
-                    <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-                </linearGradient>
-
                 <filter id="lift" x="-40%" y="-40%" width="180%" height="180%">
                     <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="black" flood-opacity="0.55"/>
                 </filter>
@@ -54,12 +49,10 @@
                 <image class="stone" style="transform-origin:250px 909px;" href="352305721_1427453747988236_5504768731062878759_n.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" clip-path="url(#clip4)"/>
             </a>
 
-            <!-- 별똥별 꼬리 + 불꽃 -->
-            <g id="trail" pointer-events="none" opacity="0">
-                <path id="streak" d="M0 0 L60 -4 L155 0 L60 4 Z" fill="url(#trailGrad)"/>
-            </g>
+            <!-- 나선 꼬리 (점 헬릭스). JS가 채움 -->
+            <g id="trail" pointer-events="none" opacity="0"></g>
 
-            <!-- 별 + 광선: JS가 생성 (손그림 랜덤) -->
+            <!-- 점묘화 별 + 광선. JS가 채움 -->
             <g id="star" pointer-events="none" transform="translate(720 250) scale(0.5)"></g>
 
         </svg>
@@ -72,38 +65,44 @@
 
         const homeX = 720, homeY = 250;
         let x = homeX, y = homeY;
-        let sailing = false;
-        let targetX = 0, targetY = 0, href = null;
-        const SPEED = 0.07;
         const SIZE = 0.5;
+
+        // --- 이동(가속) 상태 ---
+        let sailing = false, href = null;
+        let sx = 0, sy = 0, dirX = 0, dirY = 0, totalDist = 0, traveled = 0, vel = 0;
+        const V0 = 1.5;      // 출발 속도(느림)
+        const ACCEL = 0.16;  // 가속도
+        const VMAX = 10;     // 최고 속도
 
         function rnd(a, b) { return a + Math.random() * (b - a); }
         function polar(deg, rad) { const r = deg * Math.PI / 180; return [Math.cos(r) * rad, Math.sin(r) * rad]; }
+        function circle(cx, cy, r, fill) {
+            const c = document.createElementNS(NS, 'circle');
+            c.setAttribute('cx', cx); c.setAttribute('cy', cy); c.setAttribute('r', r);
+            c.setAttribute('fill', fill);
+            return c;
+        }
 
-        // 손그림 느낌의 불규칙 5각별 (오프화이트, 라인 없음)
-        (function buildStar() {
-            const pts = [];
-            for (let i = 0; i < 5; i++) {
-                const [ox, oy] = polar(-90 + i * 72 + rnd(-8, 8), 40 * rnd(0.82, 1.16));
-                pts.push([ox, oy]);
-                const [ix, iy] = polar(-90 + i * 72 + 36 + rnd(-9, 9), 17 * rnd(0.72, 1.32));
-                pts.push([ix, iy]);
+        // 별 폴리곤 꼭짓점 (손그림 랜덤)
+        const verts = [];
+        for (let i = 0; i < 5; i++) {
+            verts.push(polar(-90 + i * 72 + rnd(-8, 8), 40 * rnd(0.82, 1.16)));
+            verts.push(polar(-90 + i * 72 + 36 + rnd(-9, 9), 17 * rnd(0.72, 1.32)));
+        }
+        function inPoly(px, py, poly) {
+            let inside = false;
+            for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+                const xi = poly[i][0], yi = poly[i][1], xj = poly[j][0], yj = poly[j][1];
+                if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) inside = !inside;
             }
-            const d = 'M' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L') + ' Z';
-            const path = document.createElementNS(NS, 'path');
-            path.setAttribute('d', d);
-            path.setAttribute('fill', '#f4f1e8');
-            star.appendChild(path);
-        })();
+            return inside;
+        }
 
-        // 하얀 광선: 개수 많고 길이 랜덤
+        // 방사 광선 (평소용, JS twinkle) — 별보다 먼저 그려 뒤에 깔림
         const rays = [];
         (function buildRays() {
-            const N = 20;
-            for (let i = 0; i < N; i++) {
-                const ang = rnd(0, 360);
-                const s = rnd(42, 54);
-                const len = rnd(7, 44);
+            for (let i = 0; i < 20; i++) {
+                const ang = rnd(0, 360), s = rnd(42, 54), len = rnd(7, 44);
                 const [x1, y1] = polar(ang, s);
                 const [x2, y2] = polar(ang, s + len);
                 const ln = document.createElementNS(NS, 'line');
@@ -113,76 +112,98 @@
                 ln.setAttribute('stroke-width', rnd(0.8, 1.8).toFixed(2));
                 ln.setAttribute('stroke-linecap', 'round');
                 ln._baseOp = rnd(0.35, 0.85); ln._ph = rnd(0, 6.28);
-                ln.setAttribute('opacity', ln._baseOp);
-                star.insertBefore(ln, star.firstChild); // 광선을 별 뒤로
+                star.appendChild(ln);
                 rays.push(ln);
             }
         })();
 
-        // 불꽃(스파크)
-        const sparks = [];
-        for (let i = 0; i < 9; i++) {
-            const ln = document.createElementNS(NS, 'line');
-            ln.setAttribute('stroke', '#ffffff');
-            ln.setAttribute('stroke-width', '1.3');
-            ln.setAttribute('stroke-linecap', 'round');
-            ln._base = 18 + Math.random() * 130;
-            ln._off = (Math.random() * 2 - 1) * 15;
-            ln._ph = Math.random() * 6.28;
-            trail.appendChild(ln);
-            sparks.push(ln);
+        // 점묘화 별 (폴리곤 내부에 점 흩뿌림)
+        (function buildStipple() {
+            let minX = 99, maxX = -99, minY = 99, maxY = -99;
+            for (const v of verts) { minX = Math.min(minX, v[0]); maxX = Math.max(maxX, v[0]); minY = Math.min(minY, v[1]); maxY = Math.max(maxY, v[1]); }
+            let placed = 0, tries = 0;
+            while (placed < 165 && tries < 9000) {
+                tries++;
+                const px = rnd(minX, maxX), py = rnd(minY, maxY);
+                if (!inPoly(px, py, verts)) continue;
+                const c = circle(px.toFixed(1), py.toFixed(1), rnd(1.2, 2.8).toFixed(2), '#f6f3ec');
+                c.setAttribute('opacity', rnd(0.55, 1).toFixed(2));
+                star.appendChild(c);
+                placed++;
+            }
+        })();
+
+        // 나선(코일) 꼬리 — 점 헬릭스
+        const CN = 32;
+        const coil = [];
+        for (let i = 0; i < CN; i++) {
+            const c = circle(0, 0, 2, '#ffffff');
+            trail.appendChild(c);
+            coil.push(c);
         }
+
+        let g = 1; // 1=평소(광선 보임), 0=이동중(꼬리 보임)
 
         const t0 = performance.now();
 
-        function drawStar(px, py, spin, tw) {
-            star.setAttribute('transform',
-                'translate(' + px + ' ' + py + ') rotate(' + spin + ') scale(' + (SIZE * tw) + ')');
-        }
-
         function frame(now) {
             const t = (now - t0) / 1000;
-            const spin = t * 6;
+            const spin = t * 5;
             const tw = 1 + Math.sin(t * 2.2) * 0.07;
-            let tailDeg = 0, trailOp = 0;
 
-            // 광선 반짝임
+            // 광선 <-> 꼬리 전환 페이드
+            g += ((sailing ? 0 : 1) - g) * 0.15;
+
+            // 광선 반짝임 (평소일수록 진하게)
             for (const rL of rays) {
-                rL.setAttribute('opacity', (rL._baseOp * (0.55 + 0.45 * Math.sin(t * 3 + rL._ph))).toFixed(2));
+                const tk = rL._baseOp * (0.55 + 0.45 * Math.sin(t * 3 + rL._ph));
+                rL.setAttribute('opacity', (tk * g).toFixed(3));
             }
 
-            if (!sailing) {
-                x = homeX + Math.sin(t * 0.18) * 200;
-                y = homeY + Math.sin(t * 0.5) * 14 + Math.sin(t * 0.31) * 8;
-            } else {
-                const dx = targetX - x, dy = targetY - y;
-                const dist = Math.hypot(dx, dy);
-                tailDeg = Math.atan2(dy, dx) * 180 / Math.PI + 180;
-                trailOp = Math.min(1, dist / 180);
-                if (dist < 6) {
-                    drawStar(targetX, targetY, spin, tw);
+            let tailDeg = 0, trailOp = 0;
+
+            if (sailing) {
+                vel = Math.min(VMAX, vel + ACCEL);   // 가속
+                traveled += vel;
+                tailDeg = Math.atan2(dirY, dirX) * 180 / Math.PI + 180;
+                if (traveled >= totalDist) {          // 도착
+                    star.setAttribute('transform', 'translate(' + (sx + dirX * totalDist) + ' ' + (sy + dirY * totalDist) + ') rotate(' + spin + ') scale(' + (SIZE * tw) + ')');
                     trail.setAttribute('opacity', 0);
                     window.location.href = href;
                     return;
                 }
-                x += dx * SPEED;
-                y += dy * SPEED;
-
-                for (const s of sparks) {
-                    const a = (Math.sin(t * 9 + s._ph) + 1) / 2;
-                    const len = 3 + a * 9;
-                    const bx = s._base, by = s._off * (0.5 + 0.9 * a);
-                    s.setAttribute('x1', bx); s.setAttribute('y1', by);
-                    s.setAttribute('x2', bx + len);
-                    s.setAttribute('y2', by + (s._off > 0 ? len * 0.35 : -len * 0.35));
-                    s.setAttribute('opacity', 0.15 + 0.75 * a);
-                }
+                x = sx + dirX * traveled;
+                y = sy + dirY * traveled;
+                const remain = totalDist - traveled;
+                trailOp = Math.min(1, Math.min(traveled, remain) / 120); // 출발·도착 시 꼬리 페이드
+            } else {
+                x = homeX + Math.sin(t * 0.18) * 200;
+                y = homeY + Math.sin(t * 0.5) * 14 + Math.sin(t * 0.31) * 8;
             }
 
-            drawStar(x, y, spin, tw);
-            trail.setAttribute('transform',
-                'translate(' + x + ' ' + y + ') rotate(' + tailDeg + ') scale(' + SIZE + ')');
-            trail.setAttribute('opacity', trailOp);
+            // 코일 꼬리 갱신
+            if ((1 - g) > 0.01) {
+                for (let i = 0; i < CN; i++) {
+                    const s = i * 7;                          // 뒤로 뻗는 거리
+                    const ang = i * 0.85 - t * 7;             // 감기며 흐름
+                    const amp = 16 * (1 - i / CN * 0.55);     // 끝으로 갈수록 살짝 좁아짐
+                    const cx = s;
+                    const cy = amp * Math.sin(ang);
+                    const rr = 1.0 + 2.0 * (0.5 + 0.5 * Math.cos(ang)); // 앞/뒤 크기차 = 입체감
+                    const op = (1 - i / CN);
+                    const c = coil[i];
+                    c.setAttribute('cx', cx.toFixed(1));
+                    c.setAttribute('cy', cy.toFixed(1));
+                    c.setAttribute('r', rr.toFixed(2));
+                    c.setAttribute('opacity', op.toFixed(2));
+                }
+                trail.setAttribute('transform', 'translate(' + x + ' ' + y + ') rotate(' + tailDeg + ') scale(' + SIZE + ')');
+                trail.setAttribute('opacity', ((1 - g) * trailOp).toFixed(3));
+            } else {
+                trail.setAttribute('opacity', 0);
+            }
+
+            star.setAttribute('transform', 'translate(' + x + ' ' + y + ') rotate(' + spin + ') scale(' + (SIZE * tw) + ')');
             requestAnimationFrame(frame);
         }
         requestAnimationFrame(frame);
@@ -190,8 +211,12 @@
         document.querySelectorAll('a.stone-link').forEach(function (a) {
             a.addEventListener('click', function (e) {
                 e.preventDefault();
-                targetX = parseFloat(a.dataset.x);
-                targetY = parseFloat(a.dataset.y);
+                const tx = parseFloat(a.dataset.x), ty = parseFloat(a.dataset.y);
+                sx = x; sy = y;
+                const dx = tx - sx, dy = ty - sy;
+                totalDist = Math.hypot(dx, dy) || 1;
+                dirX = dx / totalDist; dirY = dy / totalDist;
+                traveled = 0; vel = V0;
                 href = a.getAttribute('href');
                 sailing = true;
             });
