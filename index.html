@@ -32,9 +32,9 @@
     .title {
         position: fixed; top: 0px; left: 6px; margin: 0;
         font-family: 'Google Sans', 'Helvetica Neue', Arial, sans-serif;
-        font-weight: 300; font-size: 70px; line-height: 1;
-        font-style: 'italic';
-        color: #1a1a1a; letter-spacing: 0.01em;
+        font-weight: 700; font-size: 70px; line-height: 1;
+        font-style: italic;
+        color: #f57438; letter-spacing: 0.01em;
         pointer-events: none;
     }
     
@@ -151,7 +151,7 @@
         const V0 = 1.5, ACCEL = 0.16, VMAX = 10;
 
         // 꼬리 성장
-        const GROW = 2.05, MAXLEN = 500, TAILW = 30;
+        const GROW = 2.05, MAXLEN = 700, TAILW = 40;
 
         function rnd(a, b) { return a + Math.random() * (b - a); }
         function polar(deg, rad) { const r = deg * Math.PI / 180; return [Math.cos(r) * rad, Math.sin(r) * rad]; }
