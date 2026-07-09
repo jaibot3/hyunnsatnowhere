@@ -6,17 +6,12 @@
     <title>Interactive Art</title>
     <style>
         body { margin: 0; background-color: #efebf2; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-
         .art-container { position: relative; width: 1000px; max-width: 100%; }
         .art-container svg { width: 100%; height: auto; display: block; }
-
-        /* 오려낸 돌 조각. 평상시엔 원본 위에 완벽히 겹쳐 있어 안 보임 */
         .stone {
             cursor: pointer;
-            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
-                        filter 0.4s ease;
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.4s ease;
         }
-        /* hover 시 해당 돌 픽셀만 떠오름: 확대 + 살짝 위로 + 그림자 + 밝기 */
         .stone:hover {
             transform: translateY(-12px) scale(1.05);
             filter: url(#lift) brightness(1.12) saturate(1.08);
@@ -29,51 +24,179 @@
         <svg viewBox="0 0 1440 1174" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
 
             <defs>
-                <!-- 각 돌 모양을 오려낼 clip 정의 (네 원본 path 그대로) -->
                 <clipPath id="clip1"><path d="M1037 723H1097C1112.33 719.667 1152.6 713 1191 713C1239 713 1237 723 1247 723C1257 723 1273 723 1313 745C1353 767 1359 781 1373 819C1387 857 1369 859 1359 897C1349 935 1355 935 1341 977C1327 1019 1297 1023 1273 1047C1249 1071 1185 1101 1129 1101C1084.2 1101 991.667 1085 951 1077L919 1047C902.333 1043.67 863 1034.2 839 1023C809 1009 751 909 763 845C775 781 811 755 853 735C886.6 719 932.333 713.667 951 713C975.667 716.333 1027.4 723 1037 723Z"/></clipPath>
                 <clipPath id="clip2"><path d="M780.5 404C808 394 814.5 380.5 830.5 372.5C847.667 366.5 889.6 354.5 920 354.5C958 354.5 979.5 362.5 1001.5 384.5C1023.5 406.5 1053 404 1053 434C1053 464 1057 497.5 1053 527.5C1049 557.5 1045.5 563.5 1017.5 581.5C989.5 599.5 926 617 882 617C838 617 780.5 629 749 617C717.5 605 715 585.5 703 563.5C691 541.5 685 525.5 687 486C689 446.5 707 444 715 434C723 424 753 414 780.5 404Z"/></clipPath>
                 <clipPath id="clip3"><path d="M496 310.5C480 276.5 490 239 512 195C520.667 187.833 541.5 170.3 555.5 157.5C573 141.5 587.5 137.5 619.5 115.5C651.5 93.5 701 74 776.5 52C852 30 840.5 42 894 52C947.5 62 944 90 961.5 115.5C979 141 953.5 195 944 223C934.5 251 904 296.5 840.5 328.5C777 360.5 713 378.5 643.5 378.5C574 378.5 512 344.5 496 310.5Z"/></clipPath>
                 <clipPath id="clip4"><path d="M209.5 752.5C285 748.5 255 758.5 293 766.5C303 771.167 329 777.7 353 766.5C383 752.5 438.5 792 438.5 812C438.5 832 442.5 854 438.5 870C434.5 886 416.5 951.5 394.5 983.5C372.5 1015.5 325 1053 293 1065C261 1077 185.5 1051 146 1039C106.5 1027 80 963.5 62 923.5C44 883.5 68 800 100 766.5C132 733 134 756.5 209.5 752.5Z"/></clipPath>
 
-                <!-- 떠오를 때 깔리는 입체 그림자 -->
+                <linearGradient id="trailGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+                    <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+                </linearGradient>
+
                 <filter id="lift" x="-40%" y="-40%" width="180%" height="180%">
-                    <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="black" flood-opacity="0.8"/>
+                    <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="black" flood-opacity="0.55"/>
                 </filter>
             </defs>
 
-            <!-- 1) 바닥: 원본 그림 전체 -->
-            <image href="352305721_1427453747988236_5504768731062878759_n.jpg"
-                   x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"/>
+            <image href="352305721_1427453747988236_5504768731062878759_n.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"/>
 
-            <!-- 2) 그 위에 '오려낸 돌 조각'들 = 같은 이미지를 clip으로 잘라 정확히 포갬 -->
-            <!-- transform-origin은 각 돌의 중심 좌표(view-box 기준). 이게 있어야 제 자리에서 커짐 -->
-            <a href=" " target="_blank">
-                <image class="stone" style="transform-origin:1070px 907px;"
-                       href="352305721_1427453747988236_5504768731062878759_n.jpg"
-                       x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"
-                       clip-path="url(#clip1)"/>
+            <a class="stone-link" href="https://github.com/link1" data-x="1070" data-y="907">
+                <image class="stone" style="transform-origin:1070px 907px;" href="352305721_1427453747988236_5504768731062878759_n.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" clip-path="url(#clip1)"/>
             </a>
-            <a href=" " target="_blank">
-                <image class="stone" style="transform-origin:872px 492px;"
-                       href="352305721_1427453747988236_5504768731062878759_n.jpg"
-                       x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"
-                       clip-path="url(#clip2)"/>
+            <a class="stone-link" href="https://github.com/link2" data-x="872" data-y="492">
+                <image class="stone" style="transform-origin:872px 492px;" href="352305721_1427453747988236_5504768731062878759_n.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" clip-path="url(#clip2)"/>
             </a>
-            <a href=" " target="_blank">
-                <image class="stone" style="transform-origin:729px 215px;"
-                       href="352305721_1427453747988236_5504768731062878759_n.jpg"
-                       x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"
-                       clip-path="url(#clip3)"/>
+            <a class="stone-link" href="https://github.com/link3" data-x="729" data-y="215">
+                <image class="stone" style="transform-origin:729px 215px;" href="352305721_1427453747988236_5504768731062878759_n.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" clip-path="url(#clip3)"/>
             </a>
-            <a href=" " target="_blank">
-                <image class="stone" style="transform-origin:250px 909px;"
-                       href="352305721_1427453747988236_5504768731062878759_n.jpg"
-                       x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"
-                       clip-path="url(#clip4)"/>
+            <a class="stone-link" href="https://github.com/link4" data-x="250" data-y="909">
+                <image class="stone" style="transform-origin:250px 909px;" href="352305721_1427453747988236_5504768731062878759_n.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" clip-path="url(#clip4)"/>
             </a>
+
+            <!-- 별똥별 꼬리 + 불꽃 -->
+            <g id="trail" pointer-events="none" opacity="0">
+                <path id="streak" d="M0 0 L60 -4 L155 0 L60 4 Z" fill="url(#trailGrad)"/>
+            </g>
+
+            <!-- 별 + 광선: JS가 생성 (손그림 랜덤) -->
+            <g id="star" pointer-events="none" transform="translate(720 250) scale(0.5)"></g>
 
         </svg>
     </div>
+
+    <script>
+        const NS = 'http://www.w3.org/2000/svg';
+        const star = document.getElementById('star');
+        const trail = document.getElementById('trail');
+
+        const homeX = 720, homeY = 250;
+        let x = homeX, y = homeY;
+        let sailing = false;
+        let targetX = 0, targetY = 0, href = null;
+        const SPEED = 0.07;
+        const SIZE = 0.5;
+
+        function rnd(a, b) { return a + Math.random() * (b - a); }
+        function polar(deg, rad) { const r = deg * Math.PI / 180; return [Math.cos(r) * rad, Math.sin(r) * rad]; }
+
+        // 손그림 느낌의 불규칙 5각별 (오프화이트, 라인 없음)
+        (function buildStar() {
+            const pts = [];
+            for (let i = 0; i < 5; i++) {
+                const [ox, oy] = polar(-90 + i * 72 + rnd(-8, 8), 40 * rnd(0.82, 1.16));
+                pts.push([ox, oy]);
+                const [ix, iy] = polar(-90 + i * 72 + 36 + rnd(-9, 9), 17 * rnd(0.72, 1.32));
+                pts.push([ix, iy]);
+            }
+            const d = 'M' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L') + ' Z';
+            const path = document.createElementNS(NS, 'path');
+            path.setAttribute('d', d);
+            path.setAttribute('fill', '#f4f1e8');
+            star.appendChild(path);
+        })();
+
+        // 하얀 광선: 개수 많고 길이 랜덤
+        const rays = [];
+        (function buildRays() {
+            const N = 20;
+            for (let i = 0; i < N; i++) {
+                const ang = rnd(0, 360);
+                const s = rnd(42, 54);
+                const len = rnd(7, 44);
+                const [x1, y1] = polar(ang, s);
+                const [x2, y2] = polar(ang, s + len);
+                const ln = document.createElementNS(NS, 'line');
+                ln.setAttribute('x1', x1.toFixed(1)); ln.setAttribute('y1', y1.toFixed(1));
+                ln.setAttribute('x2', x2.toFixed(1)); ln.setAttribute('y2', y2.toFixed(1));
+                ln.setAttribute('stroke', '#ffffff');
+                ln.setAttribute('stroke-width', rnd(0.8, 1.8).toFixed(2));
+                ln.setAttribute('stroke-linecap', 'round');
+                ln._baseOp = rnd(0.35, 0.85); ln._ph = rnd(0, 6.28);
+                ln.setAttribute('opacity', ln._baseOp);
+                star.insertBefore(ln, star.firstChild); // 광선을 별 뒤로
+                rays.push(ln);
+            }
+        })();
+
+        // 불꽃(스파크)
+        const sparks = [];
+        for (let i = 0; i < 9; i++) {
+            const ln = document.createElementNS(NS, 'line');
+            ln.setAttribute('stroke', '#ffffff');
+            ln.setAttribute('stroke-width', '1.3');
+            ln.setAttribute('stroke-linecap', 'round');
+            ln._base = 18 + Math.random() * 130;
+            ln._off = (Math.random() * 2 - 1) * 15;
+            ln._ph = Math.random() * 6.28;
+            trail.appendChild(ln);
+            sparks.push(ln);
+        }
+
+        const t0 = performance.now();
+
+        function drawStar(px, py, spin, tw) {
+            star.setAttribute('transform',
+                'translate(' + px + ' ' + py + ') rotate(' + spin + ') scale(' + (SIZE * tw) + ')');
+        }
+
+        function frame(now) {
+            const t = (now - t0) / 1000;
+            const spin = t * 6;
+            const tw = 1 + Math.sin(t * 2.2) * 0.07;
+            let tailDeg = 0, trailOp = 0;
+
+            // 광선 반짝임
+            for (const rL of rays) {
+                rL.setAttribute('opacity', (rL._baseOp * (0.55 + 0.45 * Math.sin(t * 3 + rL._ph))).toFixed(2));
+            }
+
+            if (!sailing) {
+                x = homeX + Math.sin(t * 0.18) * 200;
+                y = homeY + Math.sin(t * 0.5) * 14 + Math.sin(t * 0.31) * 8;
+            } else {
+                const dx = targetX - x, dy = targetY - y;
+                const dist = Math.hypot(dx, dy);
+                tailDeg = Math.atan2(dy, dx) * 180 / Math.PI + 180;
+                trailOp = Math.min(1, dist / 180);
+                if (dist < 6) {
+                    drawStar(targetX, targetY, spin, tw);
+                    trail.setAttribute('opacity', 0);
+                    window.location.href = href;
+                    return;
+                }
+                x += dx * SPEED;
+                y += dy * SPEED;
+
+                for (const s of sparks) {
+                    const a = (Math.sin(t * 9 + s._ph) + 1) / 2;
+                    const len = 3 + a * 9;
+                    const bx = s._base, by = s._off * (0.5 + 0.9 * a);
+                    s.setAttribute('x1', bx); s.setAttribute('y1', by);
+                    s.setAttribute('x2', bx + len);
+                    s.setAttribute('y2', by + (s._off > 0 ? len * 0.35 : -len * 0.35));
+                    s.setAttribute('opacity', 0.15 + 0.75 * a);
+                }
+            }
+
+            drawStar(x, y, spin, tw);
+            trail.setAttribute('transform',
+                'translate(' + x + ' ' + y + ') rotate(' + tailDeg + ') scale(' + SIZE + ')');
+            trail.setAttribute('opacity', trailOp);
+            requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+
+        document.querySelectorAll('a.stone-link').forEach(function (a) {
+            a.addEventListener('click', function (e) {
+                e.preventDefault();
+                targetX = parseFloat(a.dataset.x);
+                targetY = parseFloat(a.dataset.y);
+                href = a.getAttribute('href');
+                sailing = true;
+            });
+        });
+    </script>
 
 </body>
 </html>
