@@ -11,7 +11,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
-            background-color: #efebf2; /* 메인 페이지 배경색 톤 유지 */
+            background-color: #fcfdff; /* 메인 페이지 배경색 톤 유지 */
             font-family: 'Google Sans', 'Helvetica Neue', Arial, sans-serif;
             color: #1a1a1a;
             -webkit-text-size-adjust: 100%;
@@ -27,7 +27,7 @@
             font-size: 70px; 
             line-height: 1;
             font-style: italic;
-            color: #f57438; 
+            color: #fcfdff; 
             letter-spacing: 0.01em;
             pointer-events: none;
             z-index: 1000;
@@ -57,9 +57,9 @@
         }
 
         .year-menu {
-            font-size: 32px;
-            font-weight: 700;
-            color: #1a1a1a;
+            font-size: 22px;
+            font-weight: 500;
+            color: #fcfdff;
             text-decoration: none;
             opacity: 0.4;
             transition: opacity 0.3s ease, color 0.3s ease;
@@ -74,14 +74,14 @@
         .gallery {
             width: 74%;
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 4개씩 진열 */
+            grid-template-columns: repeat(2, 1fr); /* 2개씩 진열 */
             gap: 16px;
         }
 
         .work-item {
-            aspect-ratio: 3 / 4; /* 세로형 직사각형 비율 (필요시 1/1 등 수정 가능) */
+            aspect-ratio: 1 / 1; /* 세로형 직사각형 비율 (필요시 1/1 등 수정 가능) */
             background-color: #dfcae0; /* 이미지 없을 때 보이는 더미 컬러 */
-            border-radius: 4px;
+            border-radius: 0px; /* 모서리 둥글게 변경가능 */
             overflow: hidden;
             position: relative;
             cursor: pointer;
@@ -120,8 +120,8 @@
                 flex-direction: row; /* 수평 배열 */
                 flex-wrap: wrap; /* 넘치면 다음 줄로 */
                 gap: 12px 24px;
-                margin-bottom: 40px;
-                border-bottom: 1px solid rgba(0,0,0,0.1);
+                margin-bottom: 20px;
+                border-bottom: 0px solid rgba(0,0,0,0); /* 리스트메뉴 하단 보더 */
                 padding-bottom: 20px;
             }
 
@@ -140,7 +140,7 @@
 </head>
 <body>
 
-    <h1 class="title">HYUNNE at Nowhere</h1>
+    <h1 class="title">HYUNNE</h1>
 
     <div class="portfolio-wrap">
         
