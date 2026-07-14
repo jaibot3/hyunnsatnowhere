@@ -30,12 +30,21 @@
     }
     
     .title {
-        position: fixed; top: 0px; left: 6px; margin: 0;
-        font-family: 'Google Sans', 'Helvetica Neue', Arial, sans-serif;
-        font-weight: 700; font-size: 70px; line-height: 1;
-        font-style: italic;
-        color: #ffffff; letter-spacing: 0.01em;
-        pointer-events: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;          /* left:6px 대신 좌우로 쫙 펼침 */
+    text-align: center; /* 그 안에서 글자를 가운데로 */
+    margin: 0;
+    font-family: 'Google Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 700;
+    font-size: clamp(36px, 8vw, 70px);  /* 아래 설명 */
+    line-height: 1;
+    font-style: italic;
+    color: #eaebee;
+    letter-spacing: 0.01em;
+    pointer-events: none;
+
     }
     
     .stone {
