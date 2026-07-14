@@ -8,14 +8,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,400;0,500;0,700;1,400;1,700&display=swap" rel="stylesheet">
     <title>Interactive Art</title>
     <style>
-    body { 
-        margin: 0; 
-        background-color: #fcfdfa; 
-        display: flex; 
-        justify-content: center; 
-        align-items: center; /* 기본값: 모바일에서 수직 중앙 정렬 */
-        min-height: 100vh; 
-    }
+        body { 
+    margin: 0; 
+    background-color: #fcfdfa; 
+    display: flex; 
+    justify-content: center; 
+    align-items: flex-start;   /* center → flex-start */
+    min-height: 100vh; 
+    padding-top: 40px;         /* 모바일 상단 여백. 원하는 값으로 */
+    box-sizing: border-box;    /* 스크롤바 안 생기게 */
+   }
     
     .art-container { 
         position: relative; 
