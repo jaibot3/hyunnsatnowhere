@@ -11,27 +11,31 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
-            background-color: #fcfdff; /* 메인 페이지 배경색 톤 유지 */
+            background-color: #fcfdfa; /* 메인 페이지 배경색 톤 유지 */
             font-family: 'Google Sans', 'Helvetica Neue', Arial, sans-serif;
             color: #1a1a1a;
             -webkit-text-size-adjust: 100%;
         }
 
         /* ── 타이틀 (기존 구조 완벽 유지) ── */
+      
         .title {
-            position: fixed; 
-            top: 0px; 
-            left: 6px; 
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;          /* left:6px 대신 좌우로 쫙 펼침 */
+            text-align: center; /* 그 안에서 글자를 가운데로 */
             margin: 0;
-            font-weight: 700; 
-            font-size: 70px; 
+            font-family: 'Google Sans', 'Helvetica Neue', Arial, sans-serif;
+            font-weight: 700;
+            font-size: clamp(36px, 8vw, 70px);  /* 아래 설명 */
             line-height: 1;
             font-style: italic;
-            color: #ffffff; 
+            color: #eaebee;
             letter-spacing: 0.01em;
             pointer-events: none;
-            z-index: 1000;
-        }
+
+    }
 
         /* ── 본문 래퍼 (타이틀 아래 공간 확보) ── */
         .portfolio-wrap {
