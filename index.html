@@ -139,6 +139,37 @@
             .mode-toggle {
                 top: 32px;
                 right: 32px;
+                /* ── 모바일 (< 768px) ── */
+        @media (max-width: 767px) {
+            body {
+                align-items: center;   /* 남는 공간에 그림을 세로 가운데로 */
+                padding-top: 76px;     /* 타이틀·토글 아래로 그림을 밀어냄 */
+                padding-bottom: 32px;
+            }
+
+           .title {
+               top: 12px;
+               font-size: 30px;       /* 토글과 높이 맞춤 */
+            }
+
+           .mode-toggle {
+               top: calc(14px + env(safe-area-inset-top));
+               right: calc(14px + env(safe-area-inset-right));
+               width: 46px;
+               height: 28px;
+            }
+
+          .mode-toggle .knob {
+               width: 24px;
+               height: 24px;
+               transform: translateX(18px);
+            }
+
+          body.night .mode-toggle .knob {
+               transform: translateX(0);
+            }
+        }
+        
             }
         }
     </style>
