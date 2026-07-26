@@ -88,8 +88,6 @@
         }
 
         .work-thumb {
-            aspect-ratio: 4 / 3;
-            background-color: #ffffff;
             border-radius: 0px;
             overflow: hidden;
             position: relative;
@@ -97,15 +95,21 @@
             transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
+        /* 이미지 없는 자리표시용 박스 : class="work-thumb is-empty" */
+        .work-thumb.is-empty {
+            aspect-ratio: 4 / 3;
+            background-color: #ffffff;
+        }
+
         .work-item:hover .work-thumb {
             transform: translateY(-8px);
         }
 
+        /* 가로는 칼럼 폭에 고정, 세로는 원본 비율대로 자동 */
         .work-thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
             display: block;
+            width: 100%;
+            height: auto;
         }
 
         /* ── 캡션 영역 ──
@@ -114,7 +118,7 @@
            padding-left  : 이미지에서 더 떨어뜨림
            [문단 간격 조정]
            각 요소의 margin-bottom = 문단 사이 여백
-           line-height              = 한 문단 안의 줄 간격          */
+           line-height             = 한 문단 안의 줄 간격          */
         .work-info {
             padding-top: 70px;
             padding-left: 0;
@@ -150,6 +154,12 @@
             letter-spacing: 0.06em;
             color: #b0b0ae;
         }
+
+        /* 내용이 비어 있는 항목은 여백까지 사라짐 */
+        .work-title:empty,
+        .work-material:empty,
+        .work-desc:empty,
+        .work-year:empty { display: none; }
 
         /* ── 모바일 (< 768px) ── */
         @media (max-width: 768px) {
@@ -191,6 +201,10 @@
                 gap: 16px;
             }
 
+            .work-info {
+                padding-top: 0;   /* 모바일에선 70px 여백 해제 */
+            }
+
             .work-title { font-size: 14px; }
             .work-desc  { font-size: 13.5px; }
         }
@@ -214,7 +228,7 @@
 
             <div class="work-item">
                 <div class="work-thumb">
-                    <img src="hyunne1.jpg" alt=""> 
+                    <img src="hyunne1.jpg" alt="">
                 </div>
                 <div class="work-info">
                     <h2 class="work-title">00</h2>
@@ -225,8 +239,9 @@
             </div>
 
             <div class="work-item">
-                <div class="work-thumb"></div>
-                  <img src="hyunne.jpg" alt=""> </div>
+                <div class="work-thumb">
+                    <img src="hyunne.jpg" alt="">
+                </div>
                 <div class="work-info">
                     <h2 class="work-title">00</h2>
                     <p class="work-material">hanji / Korean watercolour</p>
@@ -237,7 +252,8 @@
 
             <div class="work-item">
                 <div class="work-thumb">
-                    <img src="hyunne2.jpg" alt=""> </div>
+                    <img src="hyunne2.jpg" alt="">
+                </div>
                 <div class="work-info">
                     <h2 class="work-title">00</h2>
                     <p class="work-material">hanji / Korean watercolour</p>
@@ -248,22 +264,26 @@
 
             <div class="work-item">
                 <div class="work-thumb">
-                    <img src="photo_0.jpg" alt=""> </div>
+                    <img src="photo_0.jpg" alt="">
+                </div>
                 <div class="work-info">
                     <h2 class="work-title">00</h2>
                     <p class="work-material">hanji / Korean watercolour</p>
                     <p class="work-desc"></p>
                     <p class="work-year">Archive</p>
                 </div>
-              <div class="work-item">
+            </div>
+
+            <div class="work-item">
                 <div class="work-thumb">
-                    <img src="hunne3.jpg" alt=""> </div>
+                    <img src="hunne3.jpg" alt="">
+                </div>
                 <div class="work-info">
                     <h2 class="work-title">00</h2>
                     <p class="work-material">hanji / Korean watercolour</p>
                     <p class="work-desc"></p>
                     <p class="work-year">Archive</p>
-                </div>   
+                </div>
             </div>
 
         </div>
