@@ -71,9 +71,9 @@
         /* ── 구름(스톤) 각자 좌우로 둥둥 떠다니기 ── */
         .stone {
             cursor: pointer;
-            --ax: 11px;   /* 좌우 흔들림 폭 */
-            --ay: 5px;    /* 위아래(둥둥) 폭 */
-            animation: floatDrift var(--dur, 9s) ease-in-out infinite;
+            --ax: 34px;   /* 좌우 이동폭: 큰 화면에서도 확실히 보이게 */
+            --ay: 14px;   /* 위아래 둥실거림 */
+            animation: floatDrift var(--dur, 7s) ease-in-out infinite;
             animation-delay: var(--dly, 0s);
             will-change: transform;
             transition: filter 0.4s ease;
@@ -81,20 +81,25 @@
         .stone:hover { filter: brightness(1.12) saturate(1.08); }
 
         /* 구름마다 속도·시작점 다르게 → 하나하나 따로 움직임 */
-        .stone-link:nth-of-type(1) .stone { --dur: 8.5s;  --dly: -1.2s; --ax: 12px; --ay: 5px; }
-        .stone-link:nth-of-type(2) .stone { --dur: 11s;   --dly: -4.4s; --ax: 10px; --ay: 6px; }
-        .stone-link:nth-of-type(3) .stone { --dur: 9.7s;  --dly: -0.6s; --ax: 13px; --ay: 4px; }
-        .stone-link:nth-of-type(4) .stone { --dur: 12s;   --dly: -6.5s; --ax: 11px; --ay: 6px; }
+        .stone-link:nth-of-type(1) .stone { --dur: 6.2s; --dly: -1.2s; --ax: 38px; --ay: 14px; }
+        .stone-link:nth-of-type(2) .stone { --dur: 7.8s; --dly: -4.4s; --ax: 30px; --ay: 18px; }
+        .stone-link:nth-of-type(3) .stone { --dur: 6.8s; --dly: -0.6s; --ax: 42px; --ay: 12px; }
+        .stone-link:nth-of-type(4) .stone { --dur: 8.4s; --dly: -6.5s; --ax: 34px; --ay: 17px; }
 
         @keyframes floatDrift {
-            0%   { transform: translate(calc(var(--ax) * -1), 0); }
-            50%  { transform: translate(var(--ax), calc(var(--ay) * -1)); }
-            100% { transform: translate(calc(var(--ax) * -1), 0); }
+            0%   { transform: translate(calc(var(--ax) * -1), 0) rotate(-0.35deg); }
+            25%  { transform: translate(calc(var(--ax) * -0.25), calc(var(--ay) * -1)) rotate(0deg); }
+            50%  { transform: translate(var(--ax), calc(var(--ay) * -0.25)) rotate(0.35deg); }
+            75%  { transform: translate(calc(var(--ax) * 0.2), var(--ay)) rotate(0deg); }
+            100% { transform: translate(calc(var(--ax) * -1), 0) rotate(-0.35deg); }
         }
 
         /* 모바일은 화면이 작아 보이니 흔들림 폭을 조금 더 크게 */
         @media (max-width: 767px) {
-            .stone { --ax: 20px; --ay: 9px; }
+            .stone-link:nth-of-type(1) .stone { --ax: 30px; --ay: 12px; }
+            .stone-link:nth-of-type(2) .stone { --ax: 26px; --ay: 14px; }
+            .stone-link:nth-of-type(3) .stone { --ax: 32px; --ay: 11px; }
+            .stone-link:nth-of-type(4) .stone { --ax: 28px; --ay: 14px; }
         }
 
         /* ── iOS 스타일 토글 ──
