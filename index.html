@@ -24,7 +24,6 @@
             --art-brightness: 0.92; /* 어두운 배경에서 그림 눈부심 완화 */
         }
 
-        html { overflow-x: clip; }
         body {
             margin: 0;
             background-color: var(--bg);
@@ -34,7 +33,6 @@
             min-height: 100vh;
             padding-top: 90px;
             box-sizing: border-box;
-            overflow-x: clip;            /* 배경 돌이 화면 밖으로 삐져도 가로 스크롤·모바일 확대 안 생기게 */
             transition: background-color 0.6s ease;
         }
 
@@ -80,25 +78,6 @@
         }
         .stone:hover { filter: brightness(1.12) saturate(1.08); }
 
-        /* ── 배경 돌 (bst1 · layer1 · layer2): 그림 위에 얹혀 가장자리에 살짝 걸침 ──
-           위치·크기는 그림(1000px) 기준 %라 화면이 줄어도 같은 구도 유지 */
-        .bg-stone {
-            position: absolute;
-            z-index: 2;                  /* 그림 위 (클릭은 통과 → 아래 돌 링크 그대로 눌림) */
-            height: auto;
-            pointer-events: none;
-            user-select: none;
-            opacity: 0.9;
-        }
-        .bg-bst1   { width: 34%; right: -19%; top: -12%; }
-        .bg-layer1 { width: 27%; left: -17%;  top: 58%; }
-        .bg-layer2 { width: 46%; right: -22%; bottom: -15%; }
-        /* 모바일: 그림이 화면 폭을 꽉 채우므로 옆이 아니라 위·아래 빈 공간으로 삐져나오게 */
-        @media (max-width: 767px) {
-            .bg-bst1   { width: 42%; right: -4%;  top: -24%; }
-            .bg-layer1 { width: 34%; left: -6%;   top: 82%; }
-            .bg-layer2 { width: 56%; right: -8%;  bottom: -30%; }
-        }
 
         /* ── iOS 스타일 토글 ──
            ON  (오른쪽, 초록) = 낮 · 지금 화면
@@ -204,10 +183,6 @@
     </button>
 
     <div class="art-container">
-        <!-- 배경 돌: 그림 위에 얹어 가장자리에 살짝 걸치게 -->
-        <img class="bg-stone bg-bst1"   src="bst1.png"   alt="" aria-hidden="true">
-        <img class="bg-stone bg-layer1" src="layer1.png" alt="" aria-hidden="true">
-        <img class="bg-stone bg-layer2" src="layer2.png" alt="" aria-hidden="true">
         <svg viewBox="0 0 1440 1174" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
 
             <defs>
