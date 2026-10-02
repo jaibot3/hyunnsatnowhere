@@ -80,11 +80,11 @@
         }
         .stone:hover { filter: brightness(1.12) saturate(1.08); }
 
-        /* ── 배경 돌 (bst1 · layer1 · layer2): 그림 뒤에 깔려 가장자리만 살짝 삐져나옴 ──
+        /* ── 배경 돌 (bst1 · layer1 · layer2): 그림 위에 얹혀 가장자리에 살짝 걸침 ──
            위치·크기는 그림(1000px) 기준 %라 화면이 줄어도 같은 구도 유지 */
         .bg-stone {
             position: absolute;
-            z-index: -1;                 /* 그림 뒤 */
+            z-index: 2;                  /* 그림 위 (클릭은 통과 → 아래 돌 링크 그대로 눌림) */
             height: auto;
             pointer-events: none;
             user-select: none;
@@ -204,7 +204,7 @@
     </button>
 
     <div class="art-container">
-        <!-- 배경 돌: 그림 뒤에 깔고 가장자리만 살짝 겹치게 -->
+        <!-- 배경 돌: 그림 위에 얹어 가장자리에 살짝 걸치게 -->
         <img class="bg-stone bg-bst1"   src="bst1.png"   alt="" aria-hidden="true">
         <img class="bg-stone bg-layer1" src="layer1.png" alt="" aria-hidden="true">
         <img class="bg-stone bg-layer2" src="layer2.png" alt="" aria-hidden="true">
@@ -466,6 +466,7 @@
             const AMP_Y = 11;      // 위아래 최대 흐름
             const TILT  = 0.9;     // 흐를 때 기울어지는 정도(도)
             const SPEED = 1.0;     // 전체 속도 배율 (작을수록 느긋)
+            const MOBILE_GAIN = 2.6;  // 모바일(767px 이하)에서 움직임 폭 배율 — 그림이 작게 보여서 더 크게
             // --------------------------
             const r = (a, b) => a + Math.random() * (b - a);
             const stones = [...document.querySelectorAll('.stone')].map(el => ({
@@ -479,7 +480,8 @@
             const t0 = performance.now();
             function frame(now) {
                 const t = (now - t0) / 1000 * SPEED;
-                const ease = Math.min(1, t / 2.5);              // 처음 2.5초 동안 서서히 움직이기 시작
+                const ease = Math.min(1, t / 2.5)               // 처음 2.5초 동안 서서히 움직이기 시작
+                           * (innerWidth <= 767 ? MOBILE_GAIN : 1);
                 for (const s of stones) {
                     const [w1, w2, w3] = s.w, [p1, p2, p3, p4] = s.p;
                     const x = s.ax * (0.62 * Math.sin(w1 * t + p1) + 0.26 * Math.sin(w2 * t + p2) + 0.12 * Math.sin(w3 * t + p3));
@@ -489,7 +491,7 @@
                     s.tilt += (TILT * vx / (s.ax * 0.9) - s.tilt) * 0.03;
                     const sc = 1 + 0.006 * Math.sin(w3 * 1.6 * t + p3);  // 아주 미세한 숨
                     s.el.style.transform =
-                        `translate(${(x * ease).toFixed(2)}px, ${(y * ease).toFixed(2)}px) rotate(${(s.tilt * ease).toFixed(3)}deg) scale(${sc.toFixed(4)})`;
+                        `translate(${(x * ease).toFixed(2)}px, ${(y * ease).toFixed(2)}px) rotate(${(s.tilt * Math.min(ease, 1.4)).toFixed(3)}deg) scale(${sc.toFixed(4)})`;
                 }
                 requestAnimationFrame(frame);
             }
