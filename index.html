@@ -24,6 +24,7 @@
             --art-brightness: 0.92; /* 어두운 배경에서 그림 눈부심 완화 */
         }
 
+        html { overflow-x: clip; }
         body {
             margin: 0;
             background-color: var(--bg);
@@ -33,6 +34,7 @@
             min-height: 100vh;
             padding-top: 90px;
             box-sizing: border-box;
+            overflow-x: clip;            /* 배경 돌이 화면 밖으로 삐져도 가로 스크롤·모바일 확대 안 생기게 */
             transition: background-color 0.6s ease;
         }
 
@@ -68,38 +70,34 @@
             transition: color 0.6s ease;
         }
 
-        /* ── 구름(스톤) 각자 좌우로 둥둥 떠다니기 ── */
+        /* ── 구름(스톤): 물 위에 뜬 것처럼 천천히 표류 ──
+           움직임은 아래 JS(STONE DRIFT)가 만듦: 속도가 다른 물결 여러 개를 겹쳐
+           같은 궤도를 반복하지 않고, 기울기도 이동 방향을 따라 아주 살짝만 따라옴 */
         .stone {
             cursor: pointer;
-            --ax: 34px;   /* 좌우 이동폭: 큰 화면에서도 확실히 보이게 */
-            --ay: 14px;   /* 위아래 둥실거림 */
-            animation: floatDrift var(--dur, 7s) ease-in-out infinite;
-            animation-delay: var(--dly, 0s);
             will-change: transform;
             transition: filter 0.4s ease;
         }
         .stone:hover { filter: brightness(1.12) saturate(1.08); }
 
-        /* 구름마다 속도·시작점 다르게 → 하나하나 따로 움직임 */
-        .stone-link:nth-of-type(1) .stone { --dur: 6.2s; --dly: -1.2s; --ax: 38px; --ay: 14px; }
-        .stone-link:nth-of-type(2) .stone { --dur: 7.8s; --dly: -4.4s; --ax: 30px; --ay: 18px; }
-        .stone-link:nth-of-type(3) .stone { --dur: 6.8s; --dly: -0.6s; --ax: 42px; --ay: 12px; }
-        .stone-link:nth-of-type(4) .stone { --dur: 8.4s; --dly: -6.5s; --ax: 34px; --ay: 17px; }
-
-        @keyframes floatDrift {
-            0%   { transform: translate(calc(var(--ax) * -1), 0) rotate(-0.35deg); }
-            25%  { transform: translate(calc(var(--ax) * -0.25), calc(var(--ay) * -1)) rotate(0deg); }
-            50%  { transform: translate(var(--ax), calc(var(--ay) * -0.25)) rotate(0.35deg); }
-            75%  { transform: translate(calc(var(--ax) * 0.2), var(--ay)) rotate(0deg); }
-            100% { transform: translate(calc(var(--ax) * -1), 0) rotate(-0.35deg); }
+        /* ── 배경 돌 (bst1 · layer1 · layer2): 그림 뒤에 깔려 가장자리만 살짝 삐져나옴 ──
+           위치·크기는 그림(1000px) 기준 %라 화면이 줄어도 같은 구도 유지 */
+        .bg-stone {
+            position: absolute;
+            z-index: -1;                 /* 그림 뒤 */
+            height: auto;
+            pointer-events: none;
+            user-select: none;
+            opacity: 0.9;
         }
-
-        /* 모바일은 화면이 작아 보이니 흔들림 폭을 조금 더 크게 */
+        .bg-bst1   { width: 34%; right: -19%; top: -12%; }
+        .bg-layer1 { width: 27%; left: -17%;  top: 58%; }
+        .bg-layer2 { width: 46%; right: -22%; bottom: -15%; }
+        /* 모바일: 그림이 화면 폭을 꽉 채우므로 옆이 아니라 위·아래 빈 공간으로 삐져나오게 */
         @media (max-width: 767px) {
-            .stone-link:nth-of-type(1) .stone { --ax: 30px; --ay: 12px; }
-            .stone-link:nth-of-type(2) .stone { --ax: 26px; --ay: 14px; }
-            .stone-link:nth-of-type(3) .stone { --ax: 32px; --ay: 11px; }
-            .stone-link:nth-of-type(4) .stone { --ax: 28px; --ay: 14px; }
+            .bg-bst1   { width: 42%; right: -4%;  top: -24%; }
+            .bg-layer1 { width: 34%; left: -6%;   top: 82%; }
+            .bg-layer2 { width: 56%; right: -8%;  bottom: -30%; }
         }
 
         /* ── iOS 스타일 토글 ──
@@ -152,7 +150,6 @@
             body, .title, .art-container, .mode-toggle, .mode-toggle .knob {
                 transition-duration: 0.01ms;
             }
-            .stone { animation: none; }
         }
 
         @media (min-width: 768px) {
@@ -164,7 +161,10 @@
             .mode-toggle {
                 top: 32px;
                 right: 32px;
-                /* ── 모바일 (< 768px) ── */
+            }
+        }
+
+        /* ── 모바일 (< 768px) ── */
         @media (max-width: 767px) {
             body {
                 align-items: center;   /* 남는 공간에 그림을 세로 가운데로 */
@@ -194,9 +194,6 @@
                transform: translateX(0);
             }
         }
-        
-            }
-        }
     </style>
 </head>
 <body class="night">
@@ -207,13 +204,36 @@
     </button>
 
     <div class="art-container">
+        <!-- 배경 돌: 그림 뒤에 깔고 가장자리만 살짝 겹치게 -->
+        <img class="bg-stone bg-bst1"   src="bst1.png"   alt="" aria-hidden="true">
+        <img class="bg-stone bg-layer1" src="layer1.png" alt="" aria-hidden="true">
+        <img class="bg-stone bg-layer2" src="layer2.png" alt="" aria-hidden="true">
         <svg viewBox="0 0 1440 1174" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
 
             <defs>
-                <clipPath id="clip1"><path d="M1037 723H1097C1112.33 719.667 1152.6 713 1191 713C1239 713 1237 723 1247 723C1257 723 1273 723 1313 745C1353 767 1359 781 1373 819C1387 857 1369 859 1359 897C1349 935 1355 935 1341 977C1327 1019 1297 1023 1273 1047C1249 1071 1185 1101 1129 1101C1084.2 1101 991.667 1085 951 1077L919 1047C902.333 1043.67 863 1034.2 839 1023C809 1009 751 909 763 845C775 781 811 755 853 735C886.6 719 932.333 713.667 951 713C975.667 716.333 1027.4 723 1037 723Z"/></clipPath>
-                <clipPath id="clip2"><path d="M780.5 404C808 394 814.5 380.5 830.5 372.5C847.667 366.5 889.6 354.5 920 354.5C958 354.5 979.5 362.5 1001.5 384.5C1023.5 406.5 1053 404 1053 434C1053 464 1057 497.5 1053 527.5C1049 557.5 1045.5 563.5 1017.5 581.5C989.5 599.5 926 617 882 617C838 617 780.5 629 749 617C717.5 605 715 585.5 703 563.5C691 541.5 685 525.5 687 486C689 446.5 707 444 715 434C723 424 753 414 780.5 404Z"/></clipPath>
-                <clipPath id="clip3"><path d="M496 310.5C480 276.5 490 239 512 195C520.667 187.833 541.5 170.3 555.5 157.5C573 141.5 587.5 137.5 619.5 115.5C651.5 93.5 701 74 776.5 52C852 30 840.5 42 894 52C947.5 62 944 90 961.5 115.5C979 141 953.5 195 944 223C934.5 251 904 296.5 840.5 328.5C777 360.5 713 378.5 643.5 378.5C574 378.5 512 344.5 496 310.5Z"/></clipPath>
-                <clipPath id="clip4"><path d="M209.5 752.5C285 748.5 255 758.5 293 766.5C303 771.167 329 777.7 353 766.5C383 752.5 438.5 792 438.5 812C438.5 832 442.5 854 438.5 870C434.5 886 416.5 951.5 394.5 983.5C372.5 1015.5 325 1053 293 1065C261 1077 185.5 1051 146 1039C106.5 1027 80 963.5 62 923.5C44 883.5 68 800 100 766.5C132 733 134 756.5 209.5 752.5Z"/></clipPath>
+                <!-- 돌 실루엣 4개. 마스크(보이는 모양)와 클릭 영역이 같은 모양을 공유 -->
+                <path id="s1" d="M1037 723H1097C1112.33 719.667 1152.6 713 1191 713C1239 713 1237 723 1247 723C1257 723 1273 723 1313 745C1353 767 1359 781 1373 819C1387 857 1369 859 1359 897C1349 935 1355 935 1341 977C1327 1019 1297 1023 1273 1047C1249 1071 1185 1101 1129 1101C1084.2 1101 991.667 1085 951 1077L919 1047C902.333 1043.67 863 1034.2 839 1023C809 1009 751 909 763 845C775 781 811 755 853 735C886.6 719 932.333 713.667 951 713C975.667 716.333 1027.4 723 1037 723Z"/>
+                <path id="s2" d="M780.5 404C808 394 814.5 380.5 830.5 372.5C847.667 366.5 889.6 354.5 920 354.5C958 354.5 979.5 362.5 1001.5 384.5C1023.5 406.5 1053 404 1053 434C1053 464 1057 497.5 1053 527.5C1049 557.5 1045.5 563.5 1017.5 581.5C989.5 599.5 926 617 882 617C838 617 780.5 629 749 617C717.5 605 715 585.5 703 563.5C691 541.5 685 525.5 687 486C689 446.5 707 444 715 434C723 424 753 414 780.5 404Z"/>
+                <path id="s3" d="M496 310.5C480 276.5 490 239 512 195C520.667 187.833 541.5 170.3 555.5 157.5C573 141.5 587.5 137.5 619.5 115.5C651.5 93.5 701 74 776.5 52C852 30 840.5 42 894 52C947.5 62 944 90 961.5 115.5C979 141 953.5 195 944 223C934.5 251 904 296.5 840.5 328.5C777 360.5 713 378.5 643.5 378.5C574 378.5 512 344.5 496 310.5Z"/>
+                <path id="s4" d="M209.5 752.5C285 748.5 255 758.5 293 766.5C303 771.167 329 777.7 353 766.5C383 752.5 438.5 792 438.5 812C438.5 832 442.5 854 438.5 870C434.5 886 416.5 951.5 394.5 983.5C372.5 1015.5 325 1053 293 1065C261 1077 185.5 1051 146 1039C106.5 1027 80 963.5 62 923.5C44 883.5 68 800 100 766.5C132 733 134 756.5 209.5 752.5Z"/>
+
+                <!-- 실루엣 가장자리를 몇 px 부드럽게 풀어 그림 속 돌과 자연스럽게 섞이게.
+                     stdDeviation 이 클수록 가장자리가 더 흐려짐 (0 = 예전처럼 칼같은 경계) -->
+                <filter id="feather" x="-10%" y="-10%" width="120%" height="120%">
+                    <feGaussianBlur stdDeviation="6"/>
+                </filter>
+                <mask id="m1" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="1174">
+                    <use href="#s1" fill="white" filter="url(#feather)"/>
+                </mask>
+                <mask id="m2" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="1174">
+                    <use href="#s2" fill="white" filter="url(#feather)"/>
+                </mask>
+                <mask id="m3" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="1174">
+                    <use href="#s3" fill="white" filter="url(#feather)"/>
+                </mask>
+                <mask id="m4" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="1174">
+                    <use href="#s4" fill="white" filter="url(#feather)"/>
+                </mask>
 
                 <radialGradient id="headGlow">
                     <stop offset="0" stop-color="#fff6ee" stop-opacity="0.95"/>
@@ -255,16 +275,28 @@
             <image href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"/>
 
             <a class="stone-link" href="0000.html" data-x="1070" data-y="907">
-                <image class="stone" style="transform-origin:1070px 907px;" href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" clip-path="url(#clip1)"/>
+                <g class="stone" style="transform-origin:1070px 907px;">
+                    <image href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" mask="url(#m1)" pointer-events="none"/>
+                    <use href="#s1" fill="transparent"/>  <!-- 클릭 영역 (돌 모양 그대로) -->
+                </g>
             </a>
             <a class="stone-link" href="https://github.com/link2" data-x="872" data-y="492">
-                <image class="stone" style="transform-origin:872px 492px;" href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" clip-path="url(#clip2)"/>
+                <g class="stone" style="transform-origin:872px 492px;">
+                    <image href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" mask="url(#m2)" pointer-events="none"/>
+                    <use href="#s2" fill="transparent"/>  <!-- 클릭 영역 (돌 모양 그대로) -->
+                </g>
             </a>
             <a class="stone-link" href="port1.html" data-x="729" data-y="215">
-                <image class="stone" style="transform-origin:729px 215px;" href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" clip-path="url(#clip3)"/>
+                <g class="stone" style="transform-origin:729px 215px;">
+                    <image href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" mask="url(#m3)" pointer-events="none"/>
+                    <use href="#s3" fill="transparent"/>  <!-- 클릭 영역 (돌 모양 그대로) -->
+                </g>
             </a>
             <a class="stone-link" href="career.html" data-x="250" data-y="909">
-                <image class="stone" style="transform-origin:250px 909px;" href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" clip-path="url(#clip4)"/>
+                <g class="stone" style="transform-origin:250px 909px;">
+                    <image href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" mask="url(#m4)" pointer-events="none"/>
+                    <use href="#s4" fill="transparent"/>  <!-- 클릭 영역 (돌 모양 그대로) -->
+                </g>
             </a>
 
             <!-- 혜성 꼬리(부드러운 플룸) + 머리 글로우 -->
@@ -420,6 +452,49 @@
                 sailing = true;
             });
         });
+    </script>
+
+    <script>
+        /* ── STONE DRIFT: 돌이 물 위에 뜬 것처럼 천천히 표류 ──
+           예전 CSS 키프레임은 4지점을 같은 박자로 왕복해서 기계적으로 보였음.
+           여기서는 주기가 서로 안 맞는 느린 물결 3개를 겹쳐 궤도가 반복되지 않고,
+           기울기는 옆으로 흐르는 속도를 따라 살짝 늦게 따라옴.                 */
+        (function () {
+            if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            // ---------- 세팅 ----------
+            const AMP_X = 26;      // 좌우 최대 흐름 (그림 좌표 px)
+            const AMP_Y = 11;      // 위아래 최대 흐름
+            const TILT  = 0.9;     // 흐를 때 기울어지는 정도(도)
+            const SPEED = 1.0;     // 전체 속도 배율 (작을수록 느긋)
+            // --------------------------
+            const r = (a, b) => a + Math.random() * (b - a);
+            const stones = [...document.querySelectorAll('.stone')].map(el => ({
+                el,
+                ax: AMP_X * r(0.75, 1.15), ay: AMP_Y * r(0.75, 1.2),
+                // 각 돌마다 서로 다른 느린 주기(초) 3개 + 무작위 시작점
+                w: [r(13, 17), r(7.5, 10), r(21, 29)].map(T => 2 * Math.PI / T),
+                p: [r(0, 6.28), r(0, 6.28), r(0, 6.28), r(0, 6.28)],
+                tilt: 0
+            }));
+            const t0 = performance.now();
+            function frame(now) {
+                const t = (now - t0) / 1000 * SPEED;
+                const ease = Math.min(1, t / 2.5);              // 처음 2.5초 동안 서서히 움직이기 시작
+                for (const s of stones) {
+                    const [w1, w2, w3] = s.w, [p1, p2, p3, p4] = s.p;
+                    const x = s.ax * (0.62 * Math.sin(w1 * t + p1) + 0.26 * Math.sin(w2 * t + p2) + 0.12 * Math.sin(w3 * t + p3));
+                    const y = s.ay * (0.55 * Math.sin(w1 * 0.83 * t + p4) + 0.30 * Math.sin(w2 * 1.27 * t + p1) + 0.15 * Math.sin(w3 * t + p2));
+                    // 옆으로 흐르는 속도 → 목표 기울기, 부드럽게 따라감
+                    const vx = s.ax * (0.62 * w1 * Math.cos(w1 * t + p1) + 0.26 * w2 * Math.cos(w2 * t + p2));
+                    s.tilt += (TILT * vx / (s.ax * 0.9) - s.tilt) * 0.03;
+                    const sc = 1 + 0.006 * Math.sin(w3 * 1.6 * t + p3);  // 아주 미세한 숨
+                    s.el.style.transform =
+                        `translate(${(x * ease).toFixed(2)}px, ${(y * ease).toFixed(2)}px) rotate(${(s.tilt * ease).toFixed(3)}deg) scale(${sc.toFixed(4)})`;
+                }
+                requestAnimationFrame(frame);
+            }
+            requestAnimationFrame(frame);
+        })();
     </script>
 
 </body>
