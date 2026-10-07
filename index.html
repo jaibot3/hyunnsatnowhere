@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,400;0,500;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
     <title>Interactive Art</title>
     <style>
         /* ── 모드별 색상 토큰 ──
@@ -16,20 +16,29 @@
             --bg: #fcfdfa;
             --title-color: #eaebee;
             --art-brightness: 1;
+            --text: #3a403c;        /* 본문 */
+            --text-soft: #8a918c;   /* 영문 */
+            --rule: #dfe2dc;
+            --serif-en: "Cormorant Garamond", "Iowan Old Style", "Times New Roman", serif;
+            --serif-ko: "Gowun Batang", "Nanum Myeongjo", "AppleMyungjo", "Batang", serif;
         }
 
         body.night {
             --bg: #12121c;          /* 밤 배경 — 원하는 색으로 교체 */
             --title-color: #1e1e2c; /* 배경보다 한 톤만 밝게 */
             --art-brightness: 0.92; /* 어두운 배경에서 그림 눈부심 완화 */
+            --text: #c9cbd6;
+            --text-soft: #7e8195;
+            --rule: #2a2a3a;
         }
 
         body {
             margin: 0;
             background-color: var(--bg);
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
             min-height: 100vh;
             padding-top: 90px;
             box-sizing: border-box;
@@ -57,13 +66,13 @@
             right: 0;
             text-align: center;
             margin: 0;
-            font-family: 'Google Sans', 'Helvetica Neue', Arial, sans-serif;
-            font-weight: 700;
-            font-size: clamp(36px, 8vw, 70px);
-            line-height: 1;
+            font-family: var(--serif-en);
+            font-weight: 300;
+            font-size: clamp(40px, 8.5vw, 84px);
+            line-height: 1.05;
             font-style: italic;
             color: var(--title-color);
-            letter-spacing: 0.01em;
+            letter-spacing: 0.02em;
             pointer-events: none;
             transition: color 0.6s ease;
         }
@@ -125,6 +134,39 @@
             outline-offset: 3px;
         }
 
+        /* ── 작가 노트 (그림 아래 중앙) ── */
+        .statement {
+            width: 100%;
+            max-width: 34em;
+            margin: clamp(72px, 12vh, 140px) auto clamp(80px, 14vh, 160px);
+            padding: 0 22px;
+            text-align: center;
+            display: grid;
+            gap: clamp(36px, 6vh, 56px);
+            box-sizing: border-box;
+            transition: color 0.6s ease;
+        }
+        .statement .ko p {
+            margin: 0 0 1.4em;
+            font-family: var(--serif-ko);
+            font-size: 16px;
+            line-height: 2.15;
+            color: var(--text);
+            word-break: keep-all;
+            text-wrap: pretty;
+        }
+        .statement .en p {
+            margin: 0 0 1.1em;
+            font-family: var(--serif-en);
+            font-style: italic;
+            font-size: 19px;
+            line-height: 1.75;
+            color: var(--text-soft);
+            text-wrap: pretty;
+        }
+        .statement p:last-child { margin-bottom: 0; }
+        .statement .rule { width: 28px; height: 1px; background: var(--rule); margin: 0 auto; }
+
         @media (prefers-reduced-motion: reduce) {
             body, .title, .art-container, .mode-toggle, .mode-toggle .knob {
                 transition-duration: 0.01ms;
@@ -133,7 +175,7 @@
 
         @media (min-width: 768px) {
             body {
-                align-items: flex-start;
+                align-items: center;
                 padding-top: 200px;
                 box-sizing: border-box;
             }
@@ -146,14 +188,14 @@
         /* ── 모바일 (< 768px) ── */
         @media (max-width: 767px) {
             body {
-                align-items: center;   /* 남는 공간에 그림을 세로 가운데로 */
+                align-items: center;   /* 세로 배치: 그림과 글을 가운데 정렬 */
                 padding-top: 76px;     /* 타이틀·토글 아래로 그림을 밀어냄 */
                 padding-bottom: 32px;
             }
 
            .title {
                top: 12px;
-               font-size: 30px;       /* 토글과 높이 맞춤 */
+               font-size: 34px;       /* 토글과 높이 맞춤 */
             }
 
            .mode-toggle {
@@ -286,7 +328,21 @@
         </svg>
     </div>
 
-    <div class="title">HYUNNE</div>
+    <section class="statement">
+        <div class="ko" lang="ko">
+            <p>Hyunne은 생과 사 그 중간에 숲이라는 차원을 열어,<br>생의 고통을 유예받는 공간을 만듭니다.</p>
+            <p>권한과 의무가 쥐어진 순간부터 어른의 틀을 써버린 60년대생 여자아이가 유예받은 시공간, 숲에 잔존하며 미약하게나마 빛을 잃지 않고 소리내지 않으며-</p>
+            <p>우리는 바람에 흔들리는 숲의 요동만으로 소녀의 표정을 가늠할 뿐입니다.</p>
+        </div>
+        <div class="rule" aria-hidden="true"></div>
+        <div class="en" lang="en">
+            <p>The forest opens as a dimension suspended between life and death, a place where the suffering of life is held in abeyance.</p>
+            <p>It is the space and time granted to a girl born in the 1960s, who was made to wear the mold of adulthood the moment responsibility and obligation were placed upon her.</p>
+            <p>She remains within the forest, faintly preserving her light without ever raising her voice. Only the trembling of the trees in the wind hints at the expression of the girl who still resides there.</p>
+        </div>
+    </section>
+
+    <div class="title">Hyunne</div>
 
     <script>
         /* ── 낮 / 밤 토글 ── */
