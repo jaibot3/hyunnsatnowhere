@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+  <title>Hyunne — CV</title>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+      --serif-en: "Cormorant Garamond", "Iowan Old Style", "Times New Roman", serif;
+      --serif-ko: "Gowun Batang", "Nanum Myeongjo", "AppleMyungjo", "Batang", serif;
+    }
+
+    html, body {
+      min-height: 100%;
+      background: #eff2f0;
+      font-family: var(--serif-ko);
+      color: #38221e;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    /* ── 상단: ← Index / Mail, 세로 스택 + 우측정렬 ── */
+    .top {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      padding: 36px 6% 0;
+    }
+    .back, .mail {
+      font-family: var(--serif-en);
+      font-size: 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #8a7f70;
+      text-decoration: none;
+      transition: color .3s;
+    }
+    .back:hover, .mail:hover { color: #38221e; }
+
+    /* ── 타이틀 ── */
+    .page-title {
+      font-family: var(--serif-en);
+      font-size: 64px;
+      font-weight: 300;
+      font-style: italic;
+      color: #75481B;
+      line-height: 1;
+      letter-spacing: 0.5px;
+      padding: 0 0 40px 2%;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+
+    /* ── 본문: 왼쪽 소개 / 오른쪽 CV 2단 ── */
+    .content-wrap {
+      padding: 250px 6% 120px 2%;
+      display: grid;
+      grid-template-columns: 30% 1fr;
+      gap: 4%;
+      align-items: start;
+    }
+
+    /* 왼쪽: 소개 문구 */
+    .intro {
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 2;
+      letter-spacing: 0.2px;
+      color: #91908e;
+      word-break: keep-all;
+      position: sticky;
+      top: 250px;
+    }
+    .intro p + p { margin-top: 14px; }
+    .intro .en { font-family: var(--serif-en); font-style: italic; font-size: 15px; line-height: 1.7; }
+
+    /* ── 오른쪽: CV ── */
+    .cv {
+      display: flex;
+      flex-direction: column;
+      gap: 34px;
+    }
+    .cv-label {
+      font-family: var(--serif-en);
+      font-size: 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-weight: 500;
+      color: #8a7f70;
+      margin-bottom: 12px;
+    }
+    .cv-entry { margin-bottom: 12px; }
+    .cv-entry:last-child { margin-bottom: 0; }
+    .cv-line {
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.6;
+      letter-spacing: 0.1px;
+      color: #6f6d6a;
+      word-break: keep-all;
+    }
+    .cv-line .yr {
+      font-family: var(--serif-en);
+      font-size: 15px;
+      color: #8a7f70;
+      font-variant-numeric: tabular-nums;
+      margin-right: 10px;
+    }
+    .cv-sub {
+      font-family: var(--serif-en);
+      font-size: 14px;
+      font-style: italic;
+      font-weight: 400;
+      line-height: 1.5;
+      letter-spacing: 0.2px;
+      color: #a09e9b;
+      margin-top: 1px;
+    }
+    .cv-link {
+      color: #8a7f70;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(138,127,112,.4);
+      transition: color .3s, border-color .3s;
+    }
+    .cv-link:hover { color: #38221e; border-color: #38221e; }
+
+    /* ── 모바일: 데스크탑과 같은 2단 유지 ── */
+    @media (max-width: 640px) {
+      .top { padding: 28px 5% 0; }
+      .page-title { font-size: 46px; padding: 0 0 28px 5%; }
+      .content-wrap {
+        padding: 120px 5% 80px 5%;
+        grid-template-columns: 32% 1fr;
+        gap: 5%;
+      }
+      .intro { font-size: 10px; line-height: 1.8; top: 120px; }
+      .intro .en { font-size: 11.5px; }
+      .cv { gap: 22px; }
+      .cv-label { font-size: 9px; letter-spacing: 2px; margin-bottom: 7px; }
+      .cv-line { font-size: 10.5px; line-height: 1.5; }
+      .cv-line .yr { font-size: 11px; margin-right: 6px; }
+      .cv-sub { font-size: 10.5px; }
+      .cv-entry { margin-bottom: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 오른쪽 상단: Index / Mail -->
+  <div class="top">
+    <a href="index.html" class="back">← Index</a>
+    <a href="mailto:hyensook1020@hotmail.com" class="mail">Mail</a>
+  </div>
+
+  <!-- 타이틀 -->
+  <h1 class="page-title">Hyunne</h1>
+
+  <div class="content-wrap">
+
+    <!-- ◀ 왼쪽: 소개 문구 -->
+    <div class="intro">
+      <p>Hyunne은 생과 사 그 중간에 숲이라는 차원을 열어, 생의 고통을 유예받는 공간을 만듭니다.</p>
+      <p class="en">The forest opens as a dimension suspended between life and death, a place where the suffering of life is held in abeyance.</p>
+    </div>
+
+    <!-- ▶ 오른쪽: CV -->
+    <div class="cv">
+
+      <section class="cv-section">
+        <div class="cv-label">Education</div>
+        <div class="cv-entry">
+          <p class="cv-line">숙명여자대학교 미술학과 졸업</p>
+          <p class="cv-sub">Fine Art, Sookmyung Women's University</p>
+        </div>
+      </section>
+
+      <section class="cv-section">
+        <div class="cv-label">Solo Exhibitions</div>
+        <div class="cv-entry">
+          <p class="cv-line">개인초대전 4회</p>
+          <p class="cv-sub">Four invitational solo exhibitions</p>
+        </div>
+      </section>
+
+      <section class="cv-section">
+        <div class="cv-label">Selected Exhibitions &amp; Art Fairs</div>
+        <div class="cv-entry">
+          <p class="cv-line"><span class="yr">2010</span>인사갤러리 아트페어 (이형갤러리)</p>
+          <p class="cv-sub">Insa Gallery Art Fair</p>
+        </div>
+        <div class="cv-entry">
+          <p class="cv-line"><span class="yr">2010</span>뉴욕 아트엑스포 (뉴욕, Pier 94)</p>
+          <p class="cv-sub">Art Expo New York, Pier 94</p>
+        </div>
+        <div class="cv-entry">
+          <p class="cv-line"><span class="yr">2010</span>런던 Far East전 (런던, Mall Galleries)</p>
+          <p class="cv-sub">Far East Exhibition, Mall Galleries, London</p>
+        </div>
+        <div class="cv-entry">
+          <p class="cv-line"><span class="yr">2009</span>오늘의 한국현대미술전 (상하이 시립조각미술관)</p>
+          <p class="cv-sub">Korean Contemporary Art Festival, Shanghai</p>
+        </div>
+        <div class="cv-entry">
+          <p class="cv-line"><span class="yr">2009</span>Art 미래국제전 입선 (일본 국립신미술관)</p>
+          <p class="cv-sub">Selected, The Future of National Art Fair, The National Art Center, Tokyo</p>
+        </div>
+        <div class="cv-entry">
+          <p class="cv-line"><span class="yr">2009</span>서울오픈아트페어 (삼성동 코엑스)</p>
+          <p class="cv-sub">Seoul Open Art Fair, COEX, Seoul</p>
+        </div>
+        <div class="cv-entry">
+          <p class="cv-line"><span class="yr">2008</span>국제열린미술제 (필리핀)</p>
+          <p class="cv-sub">International Open Art Festival, Philippines</p>
+        </div>
+        <div class="cv-entry">
+          <p class="cv-line"><span class="yr">2008</span>예술은 꽃이다. 꽃이 피다 기획전</p>
+          <p class="cv-sub">“The Art is Flowers, Blossom Flowers”</p>
+        </div>
+        <div class="cv-entry">
+          <p class="cv-line"><span class="yr">2008</span>서울오픈아트페어 (삼성동 코엑스)</p>
+          <p class="cv-sub">Seoul Open Art Fair, COEX, Seoul</p>
+        </div>
+        <div class="cv-entry">
+          <p class="cv-line"><span class="yr">2007</span>대구아트페어</p>
+          <p class="cv-sub">Daegu Art Fair</p>
+        </div>
+        <div class="cv-entry">
+          <p class="cv-line"><span class="yr">2007</span>중국 상하이 아트페어</p>
+          <p class="cv-sub">Shanghai Art Fair, China</p>
+        </div>
+        <div class="cv-entry">
+          <p class="cv-line"><span class="yr">2007</span>현대미술의 시각전</p>
+        </div>
+      </section>
+
+      <section class="cv-section">
+        <div class="cv-label">Membership</div>
+        <div class="cv-entry">
+          <p class="cv-line">현) 선백회 회원</p>
+          <p class="cv-sub">Member, Sun Baek</p>
+        </div>
+      </section>
+
+      <section class="cv-section">
+        <div class="cv-label">Selected Work</div>
+        <div class="cv-entry">
+          <p class="cv-line">붉은 립스틱의 여인</p>
+          <p class="cv-sub">100 × 57 cm · mixed media on hwaseonji</p>
+        </div>
+      </section>
+
+      <section class="cv-section">
+        <div class="cv-label">Contact</div>
+        <p class="cv-line"><a class="cv-link" href="mailto:hyensook1020@hotmail.com">hyensook1020@hotmail.com</a></p>
+        <p class="cv-line">서울시 서초구 방배3동 1008번지 방배아트힐 아파트 110동 1102호</p>
+        <p class="cv-sub">110-1102 Bangbae Art Hill, Seocho-gu, Seoul</p>
+      </section>
+
+    </div>
+
+  </div>
+
+</body>
+</html>

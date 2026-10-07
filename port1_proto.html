@@ -29,7 +29,7 @@ header{display:flex;justify-content:space-between;align-items:baseline;padding-b
 header a{color:var(--ink);text-decoration:none;font-family:var(--serif-en);font-style:italic;font-size:24px;font-weight:300}
 .count{font-family:var(--serif-en);font-size:15px;color:var(--mute);letter-spacing:.08em;font-variant-numeric:tabular-nums}
 
-.stage{position:relative;display:flex;align-items:center;justify-content:center;min-height:0}
+.stage{position:relative;display:flex;align-items:center;justify-content:center;gap:var(--gap,28px);min-height:0}
 .frame{position:relative;height:var(--h,60vh);display:flex;align-items:center;justify-content:center}
 .frame img{display:block;height:100%;width:auto;max-width:none;user-select:none;-webkit-user-drag:none;
   transition:opacity .55s ease}
@@ -41,27 +41,27 @@ header a{color:var(--ink);text-decoration:none;font-family:var(--serif-en);font-
 .info .t{font-family:var(--serif-en);font-style:italic;font-size:20px;line-height:1.2}
 .info .m{font-size:13px;letter-spacing:.02em;opacity:.85}
 
-.arrow{position:absolute;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--ink);
+.arrow{flex:none;background:none;border:0;color:var(--ink);
   font-family:var(--serif-en);font-size:34px;font-weight:300;line-height:1;padding:16px 10px;cursor:pointer;opacity:.55;transition:opacity .3s}
 .arrow:hover,.arrow:focus-visible{opacity:1;outline:none}
 .arrow:focus-visible{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:1px}
-.prev{left:0}.next{right:0}
 
-nav.index{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 22px;padding-block:18px 26px}
+
+nav.index{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 16px;padding-block:18px 26px}
 nav.index button{background:none;border:0;padding:6px 2px;cursor:pointer;color:var(--mute);
   font-family:var(--serif-en);font-size:17px;letter-spacing:.06em;font-variant-numeric:tabular-nums;
   border-bottom:1px solid transparent;transition:color .3s,border-color .3s}
 nav.index button:hover,nav.index button:focus-visible{color:var(--ink);outline:none}
 nav.index button[aria-current="true"]{color:var(--moss);border-color:var(--moss)}
 
-@media (max-width:600px){.arrow{font-size:28px;padding:12px 4px}nav.index{gap:4px 16px}}
+@media (max-width:600px){:root{--gap:2px}.arrow{font-size:28px;padding:12px 4px}nav.index{gap:4px 14px}}
 @media (prefers-reduced-motion:reduce){.frame img,.info{transition:none}}
 </style>
 </head>
 <body>
 <header>
   <a href="index_proto.html">Hyunne</a>
-  <span class="count" id="count" aria-live="polite">00 / 05</span>
+  <span class="count" id="count" aria-live="polite">00 / 14</span>
 </header>
 
 <section class="stage" id="stage" aria-roledescription="carousel" aria-label="작품">
@@ -78,12 +78,21 @@ nav.index button[aria-current="true"]{color:var(--moss);border-color:var(--moss)
 <script>
 // 작품 정보: 제목·연도·재료·크기를 여기서 채우면 됩니다.
 const WORKS = [
-  {src:"works/w00.jpg", title:"Untitled 00", meta:"hanji / Korean watercolour"},
-  {src:"works/w01.jpg", title:"Untitled 01", meta:"hanji / Korean watercolour"},
-  {src:"works/w02.jpg", title:"Untitled 02", meta:"hanji / Korean watercolour"},
-  {src:"works/w03.jpg", title:"Untitled 03", meta:"hanji / Korean watercolour"},
-  {src:"works/w04.jpg", title:"Untitled 04", meta:"hanji / Korean watercolour"},
-  {src:"works/w05.jpg", title:"Untitled 05", meta:"hanji / Korean watercolour"},
+  {src:"works/a00.jpg", title:"Untitled 00", meta:"hanji / Korean watercolour"},
+  {src:"works/a01.jpg", title:"Untitled 01", meta:"hanji / Korean watercolour"},
+  {src:"works/a02.jpg", title:"Untitled 02", meta:"hanji / Korean watercolour"},
+  {src:"works/a03.jpg", title:"Untitled 03", meta:"hanji / Korean watercolour"},
+  {src:"works/a04.jpg", title:"Untitled 04", meta:"hanji / Korean watercolour"},
+  {src:"works/a05.jpg", title:"Untitled 05", meta:"hanji / Korean watercolour"},
+  {src:"works/a06.jpg", title:"Untitled 06", meta:"hanji / Korean watercolour"},
+  {src:"works/a07.jpg", title:"Untitled 07", meta:"hanji / Korean watercolour"},
+  {src:"works/a08.jpg", title:"Untitled 08", meta:"hanji / Korean watercolour"},
+  {src:"works/w00.jpg", title:"Untitled 09", meta:"hanji / Korean watercolour"},
+  {src:"works/w01.jpg", title:"Untitled 10", meta:"hanji / Korean watercolour"},
+  {src:"works/w02.jpg", title:"Untitled 11", meta:"hanji / Korean watercolour"},
+  {src:"works/w03.jpg", title:"Untitled 12", meta:"hanji / Korean watercolour"},
+  {src:"works/w04.jpg", title:"Untitled 13", meta:"hanji / Korean watercolour"},
+  {src:"works/w05.jpg", title:"Untitled 14", meta:"hanji / Korean watercolour"},
 ];
 const pad = n => String(n).padStart(2,"0");
 const $ = id => document.getElementById(id);
@@ -95,10 +104,10 @@ Promise.all(WORKS.map((w,i)=>new Promise(r=>{const im=new Image();im.onload=()=>
 
 function fit(){
   const r = Math.max(...ratios.filter(Boolean), 1);
-  const side = innerWidth < 600 ? 72 : 160;          // room for arrows
+  const side = innerWidth < 600 ? 72 : 140;          // room for arrows beside the work
   const availW = stage.clientWidth - side;
   const availH = stage.clientHeight - 12;
-  const h = Math.max(160, Math.min(availH, availW / r, 900));
+  const h = Math.max(160, Math.min(availH, availW / r, 720));
   frame.style.setProperty("--h", h + "px");
 }
 addEventListener("resize", fit);
