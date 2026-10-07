@@ -8,20 +8,20 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Gowun+Batang:wght@400;700&display=swap">
 <style>
-/* Layout: single-screen gallery. One painting dead centre at a shared height, arrows at the edges, index 00–05 along the foot. */
+/* Layout: single-screen gallery. One painting dead centre at a shared height, arrows fixed beside the widest work, index 00–05 along the foot. */
 :root{
-  --paper:#fcfdfa; --ink:#28322e; --mute:#7a857f; --moss:#1f5a53; --veil:rgba(20,28,25,.62); --veil-ink:#f1f3ee;
+  --paper:#fcfdfa; --ink:#28322e; --mute:#7a857f; --moss:#1f5a53; --veil:rgba(20,28,25,.62); --veil-ink:#f1f3ee; --arrow:#2f4fb8;
   --serif-en:"Cormorant Garamond","Iowan Old Style","Times New Roman",serif;
   --serif-ko:"Gowun Batang","Nanum Myeongjo","AppleMyungjo","Batang",serif;
   color-scheme:light;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#121816;--ink:#dde2db;--mute:#859089;--moss:#8fbdb3;--veil:rgba(8,12,11,.7);--veil-ink:#eef1ec;color-scheme:dark}}
-:root[data-theme="dark"]{--paper:#121816;--ink:#dde2db;--mute:#859089;--moss:#8fbdb3;--veil:rgba(8,12,11,.7);--veil-ink:#eef1ec;color-scheme:dark}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#121816;--ink:#dde2db;--mute:#859089;--moss:#8fbdb3;--veil:rgba(8,12,11,.7);--veil-ink:#eef1ec;--arrow:#8ea6f2;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#121816;--ink:#dde2db;--mute:#859089;--moss:#8fbdb3;--veil:rgba(8,12,11,.7);--veil-ink:#eef1ec;--arrow:#8ea6f2;color-scheme:dark}
 
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
 body{background:var(--paper);color:var(--ink);font-family:var(--serif-ko);-webkit-font-smoothing:antialiased;
-  display:grid;grid-template-rows:auto 1fr auto;overflow:hidden;
+  display:grid;grid-template-rows:auto 1fr auto;grid-template-columns:minmax(0,1fr);overflow:hidden;
   padding:env(safe-area-inset-top,0px) 20px env(safe-area-inset-bottom,0px)}
 img{max-width:100%}
 
@@ -30,19 +30,20 @@ header a{color:var(--ink);text-decoration:none;font-family:var(--serif-en);font-
 .count{font-family:var(--serif-en);font-size:15px;color:var(--mute);letter-spacing:.08em;font-variant-numeric:tabular-nums}
 
 .stage{position:relative;display:flex;align-items:center;justify-content:center;gap:var(--gap,28px);min-height:0}
-.frame{position:relative;height:var(--h,60vh);display:flex;align-items:center;justify-content:center}
+.frame{position:relative;height:var(--h,60vh);width:var(--w,60vh);flex:none;display:flex;align-items:center;justify-content:center}
+.art{position:relative;height:100%;display:block}
 .frame img{display:block;height:100%;width:auto;max-width:none;user-select:none;-webkit-user-drag:none;
   transition:opacity .55s ease}
 .frame img.out{opacity:0}
 
 .info{position:absolute;left:0;right:0;bottom:0;padding:18px 20px 16px;background:var(--veil);color:var(--veil-ink);
   display:grid;gap:4px;opacity:0;transform:translateY(4px);transition:opacity .4s ease,transform .4s ease;pointer-events:none}
-.frame:hover .info,.frame.show .info,.frame:focus-within .info{opacity:1;transform:none}
+.art:hover .info,.frame.show .info,.frame:focus-within .info{opacity:1;transform:none}
 .info .t{font-family:var(--serif-en);font-style:italic;font-size:20px;line-height:1.2}
 .info .m{font-size:13px;letter-spacing:.02em;opacity:.85}
 
-.arrow{flex:none;background:none;border:0;color:var(--ink);
-  font-family:var(--serif-en);font-size:34px;font-weight:300;line-height:1;padding:16px 10px;cursor:pointer;opacity:.55;transition:opacity .3s}
+.arrow{flex:none;background:none;border:0;color:var(--arrow);
+  font-family:var(--serif-en);font-size:102px;font-weight:300;line-height:.8;padding:12px 6px;cursor:pointer;opacity:.75;transition:opacity .3s}
 .arrow:hover,.arrow:focus-visible{opacity:1;outline:none}
 .arrow:focus-visible{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:1px}
 
@@ -54,7 +55,7 @@ nav.index button{background:none;border:0;padding:6px 2px;cursor:pointer;color:v
 nav.index button:hover,nav.index button:focus-visible{color:var(--ink);outline:none}
 nav.index button[aria-current="true"]{color:var(--moss);border-color:var(--moss)}
 
-@media (max-width:600px){:root{--gap:2px}.arrow{font-size:28px;padding:12px 4px}nav.index{gap:4px 14px}}
+@media (max-width:600px){:root{--gap:2px}.arrow{font-size:64px;padding:8px 0}nav.index{gap:4px 14px}}
 @media (prefers-reduced-motion:reduce){.frame img,.info{transition:none}}
 </style>
 </head>
@@ -67,8 +68,8 @@ nav.index button[aria-current="true"]{color:var(--moss);border-color:var(--moss)
 <section class="stage" id="stage" aria-roledescription="carousel" aria-label="작품">
   <button class="arrow prev" id="prev" aria-label="이전 작품">‹</button>
   <figure class="frame" id="frame" tabindex="0" style="margin:0">
-    <img id="img" src="works/w00.jpg" alt="">
-    <figcaption class="info" id="info"><span class="t"></span><span class="m"></span></figcaption>
+    <span class="art"><img id="img" src="works/w00.jpg" alt="">
+    <figcaption class="info" id="info"><span class="t"></span><span class="m"></span></figcaption></span>
   </figure>
   <button class="arrow next" id="next" aria-label="다음 작품">›</button>
 </section>
@@ -104,11 +105,13 @@ Promise.all(WORKS.map((w,i)=>new Promise(r=>{const im=new Image();im.onload=()=>
 
 function fit(){
   const r = Math.max(...ratios.filter(Boolean), 1);
-  const side = innerWidth < 600 ? 72 : 140;          // room for arrows beside the work
-  const availW = stage.clientWidth - side;
+  const gap = parseFloat(getComputedStyle(stage).columnGap) || 0;
+  const side = $("prev").offsetWidth + $("next").offsetWidth + gap * 2;   // room for the arrows
+  const availW = document.documentElement.clientWidth - 40 - side;   // 20px gutters
   const availH = stage.clientHeight - 12;
-  const h = Math.max(160, Math.min(availH, availW / r, 720));
+  const h = Math.max(80, Math.min(availH, availW / r, 720));
   frame.style.setProperty("--h", h + "px");
+  frame.style.setProperty("--w", (h * r) + "px");   // arrows stay put: frame = widest work
 }
 addEventListener("resize", fit);
 
