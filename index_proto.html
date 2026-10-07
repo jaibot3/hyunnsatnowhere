@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+    <title>Interactive Art</title>
+    <style>
+        /* ── 모드별 색상 토큰 ──
+           낮 : 지금 화면 그대로
+           밤 : 잉크빛 딥 인디고. 타이틀도 배경보다 아주 살짝만 밝게 두어
+                "겨우 보이는" 원래 성격을 유지함                        */
+        :root {
+            --bg: #fcfdfa;
+            --title-color: #eaebee;
+            --art-brightness: 1;
+            --text: #3a403c;        /* 본문 */
+            --text-soft: #8a918c;   /* 영문 */
+            --rule: #dfe2dc;
+            --serif-en: "Cormorant Garamond", "Iowan Old Style", "Times New Roman", serif;
+            --serif-ko: "Gowun Batang", "Nanum Myeongjo", "AppleMyungjo", "Batang", serif;
+        }
+
+        body.night {
+            --bg: #12121c;          /* 밤 배경 — 원하는 색으로 교체 */
+            --title-color: #1e1e2c; /* 배경보다 한 톤만 밝게 */
+            --art-brightness: 0.92; /* 어두운 배경에서 그림 눈부심 완화 */
+            --text: #c9cbd6;
+            --text-soft: #7e8195;
+            --rule: #2a2a3a;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh;
+            padding-top: 90px;
+            box-sizing: border-box;
+            transition: background-color 0.6s ease;
+        }
+
+        .art-container {
+            position: relative;
+            width: 1000px;
+            max-width: 100%;
+            filter: brightness(var(--art-brightness));
+            transition: filter 0.6s ease;
+        }
+
+        .art-container svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .title {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            margin: 0;
+            font-family: var(--serif-en);
+            font-weight: 300;
+            font-size: clamp(40px, 8.5vw, 84px);
+            line-height: 1.05;
+            font-style: italic;
+            color: var(--title-color);
+            letter-spacing: 0.02em;
+            pointer-events: none;
+            transition: color 0.6s ease;
+        }
+
+        /* ── 구름(스톤): 물 위에 뜬 것처럼 천천히 표류 ──
+           움직임은 아래 JS(STONE DRIFT)가 만듦: 속도가 다른 물결 여러 개를 겹쳐
+           같은 궤도를 반복하지 않고, 기울기도 이동 방향을 따라 아주 살짝만 따라옴 */
+        .stone {
+            cursor: pointer;
+            will-change: transform;
+            transition: filter 0.4s ease;
+        }
+        .stone:hover { filter: brightness(1.12) saturate(1.08); }
+
+
+        /* ── iOS 스타일 토글 ──
+           ON  (오른쪽, 초록) = 낮 · 지금 화면
+           OFF (왼쪽, 회색)   = 밤                                */
+        .mode-toggle {
+            position: fixed;
+            top: 22px;
+            right: 22px;
+            z-index: 100;
+            width: 51px;
+            height: 31px;
+            padding: 2px;
+            border: none;
+            border-radius: 999px;
+            background-color: #C73C34;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .mode-toggle .knob {
+            display: block;
+            width: 27px;
+            height: 27px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15),
+                        0 1px 1px rgba(0, 0, 0, 0.16);
+            transform: translateX(20px);
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        body.night .mode-toggle {
+            background-color: #39393d;
+        }
+
+        body.night .mode-toggle .knob {
+            transform: translateX(0);
+        }
+
+        .mode-toggle:focus-visible {
+            outline: 2px solid #8a8fa8;
+            outline-offset: 3px;
+        }
+
+        /* ── 작가 노트 (그림 아래 중앙) ── */
+        .statement {
+            width: 100%;
+            max-width: 34em;
+            margin: clamp(72px, 12vh, 140px) auto clamp(80px, 14vh, 160px);
+            padding: 0 22px;
+            text-align: center;
+            display: grid;
+            gap: clamp(36px, 6vh, 56px);
+            box-sizing: border-box;
+            transition: color 0.6s ease;
+        }
+        .statement .ko p {
+            margin: 0 0 1.4em;
+            font-family: var(--serif-ko);
+            font-size: 16px;
+            line-height: 2.15;
+            color: var(--text);
+            word-break: keep-all;
+            text-wrap: pretty;
+        }
+        .statement .en p {
+            margin: 0 0 1.1em;
+            font-family: var(--serif-en);
+            font-style: italic;
+            font-size: 19px;
+            line-height: 1.75;
+            color: var(--text-soft);
+            text-wrap: pretty;
+        }
+        .statement p:last-child { margin-bottom: 0; }
+        .statement .rule { width: 28px; height: 1px; background: var(--rule); margin: 0 auto; }
+
+        @media (prefers-reduced-motion: reduce) {
+            body, .title, .art-container, .mode-toggle, .mode-toggle .knob {
+                transition-duration: 0.01ms;
+            }
+        }
+
+        @media (min-width: 768px) {
+            body {
+                align-items: center;
+                padding-top: 200px;
+                box-sizing: border-box;
+            }
+            .mode-toggle {
+                top: 32px;
+                right: 32px;
+            }
+        }
+
+        /* ── 모바일 (< 768px) ── */
+        @media (max-width: 767px) {
+            body {
+                align-items: center;   /* 세로 배치: 그림과 글을 가운데 정렬 */
+                padding-top: 76px;     /* 타이틀·토글 아래로 그림을 밀어냄 */
+                padding-bottom: 32px;
+            }
+
+           .title {
+               top: 12px;
+               font-size: 34px;       /* 토글과 높이 맞춤 */
+            }
+
+           .mode-toggle {
+               top: calc(14px + env(safe-area-inset-top));
+               right: calc(14px + env(safe-area-inset-right));
+               width: 46px;
+               height: 28px;
+            }
+
+          .mode-toggle .knob {
+               width: 24px;
+               height: 24px;
+               transform: translateX(18px);
+            }
+
+          body.night .mode-toggle .knob {
+               transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body class="night">
+
+    <button class="mode-toggle" id="modeToggle" type="button"
+            role="switch" aria-checked="false" aria-label="밤 모드 전환">
+        <span class="knob"></span>
+    </button>
+
+    <div class="art-container">
+        <svg viewBox="0 0 1440 1174" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+
+            <defs>
+                <!-- 돌 실루엣 4개. 마스크(보이는 모양)와 클릭 영역이 같은 모양을 공유 -->
+                <path id="s1" d="M1037 723H1097C1112.33 719.667 1152.6 713 1191 713C1239 713 1237 723 1247 723C1257 723 1273 723 1313 745C1353 767 1359 781 1373 819C1387 857 1369 859 1359 897C1349 935 1355 935 1341 977C1327 1019 1297 1023 1273 1047C1249 1071 1185 1101 1129 1101C1084.2 1101 991.667 1085 951 1077L919 1047C902.333 1043.67 863 1034.2 839 1023C809 1009 751 909 763 845C775 781 811 755 853 735C886.6 719 932.333 713.667 951 713C975.667 716.333 1027.4 723 1037 723Z"/>
+                <path id="s2" d="M780.5 404C808 394 814.5 380.5 830.5 372.5C847.667 366.5 889.6 354.5 920 354.5C958 354.5 979.5 362.5 1001.5 384.5C1023.5 406.5 1053 404 1053 434C1053 464 1057 497.5 1053 527.5C1049 557.5 1045.5 563.5 1017.5 581.5C989.5 599.5 926 617 882 617C838 617 780.5 629 749 617C717.5 605 715 585.5 703 563.5C691 541.5 685 525.5 687 486C689 446.5 707 444 715 434C723 424 753 414 780.5 404Z"/>
+                <path id="s3" d="M496 310.5C480 276.5 490 239 512 195C520.667 187.833 541.5 170.3 555.5 157.5C573 141.5 587.5 137.5 619.5 115.5C651.5 93.5 701 74 776.5 52C852 30 840.5 42 894 52C947.5 62 944 90 961.5 115.5C979 141 953.5 195 944 223C934.5 251 904 296.5 840.5 328.5C777 360.5 713 378.5 643.5 378.5C574 378.5 512 344.5 496 310.5Z"/>
+                <path id="s4" d="M209.5 752.5C285 748.5 255 758.5 293 766.5C303 771.167 329 777.7 353 766.5C383 752.5 438.5 792 438.5 812C438.5 832 442.5 854 438.5 870C434.5 886 416.5 951.5 394.5 983.5C372.5 1015.5 325 1053 293 1065C261 1077 185.5 1051 146 1039C106.5 1027 80 963.5 62 923.5C44 883.5 68 800 100 766.5C132 733 134 756.5 209.5 752.5Z"/>
+
+                <!-- 실루엣 가장자리를 몇 px 부드럽게 풀어 그림 속 돌과 자연스럽게 섞이게.
+                     stdDeviation 이 클수록 가장자리가 더 흐려짐 (0 = 예전처럼 칼같은 경계) -->
+                <filter id="feather" x="-10%" y="-10%" width="120%" height="120%">
+                    <feGaussianBlur stdDeviation="6"/>
+                </filter>
+                <mask id="m1" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="1174">
+                    <use href="#s1" fill="white" filter="url(#feather)"/>
+                </mask>
+                <mask id="m2" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="1174">
+                    <use href="#s2" fill="white" filter="url(#feather)"/>
+                </mask>
+                <mask id="m3" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="1174">
+                    <use href="#s3" fill="white" filter="url(#feather)"/>
+                </mask>
+                <mask id="m4" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="1174">
+                    <use href="#s4" fill="white" filter="url(#feather)"/>
+                </mask>
+
+                <radialGradient id="headGlow">
+                    <stop offset="0" stop-color="#fff6ee" stop-opacity="0.95"/>
+                    <stop offset="32%" stop-color="#f3cbba" stop-opacity="0.55"/>
+                    <stop offset="100%" stop-color="#e7b6c8" stop-opacity="0"/>
+                </radialGradient>
+                <linearGradient id="cometTail" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0" stop-color="#f4ddd0" stop-opacity="0.85"/>
+                    <stop offset="13%" stop-color="#dfcae0" stop-opacity="0.55"/>
+                    <stop offset="55%" stop-color="#cdbcd8" stop-opacity="0.24"/>
+                    <stop offset="100%" stop-color="#cdbcd8" stop-opacity="0"/>
+                </linearGradient>
+                <filter id="soften" x="-40%" y="-60%" width="180%" height="220%">
+                    <feGaussianBlur stdDeviation="8"/>
+                </filter>
+
+                <!-- 별 자체의 은은한 앰비언트 광 -->
+                <radialGradient id="starRadial">
+                    <stop offset="0" stop-color="#ffffff" stop-opacity="1"/>
+                    <stop offset="45%" stop-color="#f4f1e8" stop-opacity="0.5"/>
+                    <stop offset="100%" stop-color="#f4f1e8" stop-opacity="0"/>
+                </radialGradient>
+                <!-- 별 실루엣을 부드럽게 빛나게 하는 글로우 필터 -->
+                <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+                    <feGaussianBlur stdDeviation="5" result="blur1"/>
+                    <feGaussianBlur in="blur1" stdDeviation="9" result="blur2"/>
+                    <feMerge>
+                        <feMergeNode in="blur2"/>
+                        <feMergeNode in="blur1"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+
+                <filter id="lift" x="-40%" y="-40%" width="180%" height="180%">
+                    <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="black" flood-opacity="0.55"/>
+                </filter>
+            </defs>
+
+            <image href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none"/>
+
+            <a class="stone-link" href="0000.html" data-x="1070" data-y="907">
+                <g class="stone" style="transform-origin:1070px 907px;">
+                    <image href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" mask="url(#m1)" pointer-events="none"/>
+                    <use href="#s1" fill="transparent"/>  <!-- 클릭 영역 (돌 모양 그대로) -->
+                </g>
+            </a>
+            <a class="stone-link" href="https://github.com/link2" data-x="872" data-y="492">
+                <g class="stone" style="transform-origin:872px 492px;">
+                    <image href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" mask="url(#m2)" pointer-events="none"/>
+                    <use href="#s2" fill="transparent"/>  <!-- 클릭 영역 (돌 모양 그대로) -->
+                </g>
+            </a>
+            <a class="stone-link" href="port1_proto.html" data-x="729" data-y="215">
+                <g class="stone" style="transform-origin:729px 215px;">
+                    <image href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" mask="url(#m3)" pointer-events="none"/>
+                    <use href="#s3" fill="transparent"/>  <!-- 클릭 영역 (돌 모양 그대로) -->
+                </g>
+            </a>
+            <a class="stone-link" href="career.html" data-x="250" data-y="909">
+                <g class="stone" style="transform-origin:250px 909px;">
+                    <image href="hyunne.jpg" x="0" y="0" width="1440" height="1174" preserveAspectRatio="none" mask="url(#m4)" pointer-events="none"/>
+                    <use href="#s4" fill="transparent"/>  <!-- 클릭 영역 (돌 모양 그대로) -->
+                </g>
+            </a>
+
+            <!-- 혜성 꼬리(부드러운 플룸) + 머리 글로우 -->
+            <g id="trail" pointer-events="none" opacity="0">
+                <path id="plume" fill="url(#cometTail)" filter="url(#soften)"/>
+                <circle id="hglow" cx="0" cy="0" r="50" fill="url(#headGlow)" filter="url(#soften)"/>
+            </g>
+
+            <!-- 별: 점묘 대신 글로우로 채움. JS가 채움 -->
+            <g id="star" pointer-events="none" transform="translate(720 250) scale(0.5)"></g>
+
+        </svg>
+    </div>
+
+    <section class="statement">
+        <div class="ko" lang="ko">
+            <p>Hyunne은 생과 사 그 중간에 숲이라는 차원을 열어,<br>생의 고통을 유예받는 공간을 만듭니다.</p>
+            <p>권한과 의무가 쥐어진 순간부터 어른의 틀을 써버린 60년대생 여자아이가 유예받은 시공간, 숲에 잔존하며 미약하게나마 빛을 잃지 않고 소리내지 않으며-</p>
+            <p>우리는 바람에 흔들리는 숲의 요동만으로 소녀의 표정을 가늠할 뿐입니다.</p>
+        </div>
+        <div class="rule" aria-hidden="true"></div>
+        <div class="en" lang="en">
+            <p>The forest opens as a dimension suspended between life and death, a place where the suffering of life is held in abeyance.</p>
+            <p>It is the space and time granted to a girl born in the 1960s, who was made to wear the mold of adulthood the moment responsibility and obligation were placed upon her.</p>
+            <p>She remains within the forest, faintly preserving her light without ever raising her voice. Only the trembling of the trees in the wind hints at the expression of the girl who still resides there.</p>
+        </div>
+    </section>
+
+    <div class="title">Hyunne</div>
+
+    <script>
+        /* ── 낮 / 밤 토글 ── */
+        (function () {
+            var modeToggle = document.getElementById('modeToggle');
+            modeToggle.addEventListener('click', function () {
+                var isNight = document.body.classList.toggle('night');
+                modeToggle.setAttribute('aria-checked', isNight ? 'false' : 'true');
+            });
+        })();
+
+        const NS = 'http://www.w3.org/2000/svg';
+        const star = document.getElementById('star');
+        const trail = document.getElementById('trail');
+        const plume = document.getElementById('plume');
+
+        const homeX = 720, homeY = 820;
+        let x = homeX, y = homeY;
+        const SIZE = 0.5;
+
+        // 이동(가속)
+        let sailing = false, href = null;
+        let sx = 0, sy = 0, dirX = 0, dirY = 0, totalDist = 0, traveled = 0, vel = 0;
+        const V0 = 1.5, ACCEL = 0.16, VMAX = 10;
+
+        // 꼬리 성장
+        const GROW = 2.05, MAXLEN = 700, TAILW = 40;
+
+        function rnd(a, b) { return a + Math.random() * (b - a); }
+        function polar(deg, rad) { const r = deg * Math.PI / 180; return [Math.cos(r) * rad, Math.sin(r) * rad]; }
+
+        // 별 폴리곤 (손그림 랜덤한 5각별 윤곽)
+        const verts = [];
+        for (let i = 0; i < 5; i++) {
+            verts.push(polar(-90 + i * 72 + rnd(-8, 8), 40 * rnd(0.82, 1.16)));
+            verts.push(polar(-90 + i * 72 + 36 + rnd(-9, 9), 17 * rnd(0.72, 1.32)));
+        }
+
+        // 별 = 은은한 앰비언트 원(뒤) + 글로우 필터 먹인 실루엣(위)
+        const starAmbient = document.createElementNS(NS, 'circle');
+        starAmbient.setAttribute('cx', 0); starAmbient.setAttribute('cy', 0);
+        starAmbient.setAttribute('r', 40);
+        starAmbient.setAttribute('fill', 'url(#starRadial)');
+        star.appendChild(starAmbient);
+
+        const starShape = document.createElementNS(NS, 'path');
+        starShape.setAttribute('d', 'M' + verts.map(function (p) { return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' L') + ' Z');
+        starShape.setAttribute('fill', '#fbf8f1');
+        starShape.setAttribute('filter', 'url(#glow)');
+        star.appendChild(starShape);
+
+        let g = 1;
+        let running = false;
+        const t0 = performance.now();
+
+        function plumePath(L, W) {
+            return 'M0 -7'
+                + ' Q ' + (L * 0.28) + ' ' + (-W) + ' ' + (L * 0.6) + ' ' + (-W * 0.62)
+                + ' Q ' + (L * 0.88) + ' ' + (-W * 0.22) + ' ' + L + ' 0'
+                + ' Q ' + (L * 0.88) + ' ' + (W * 0.22) + ' ' + (L * 0.6) + ' ' + (W * 0.62)
+                + ' Q ' + (L * 0.28) + ' ' + W + ' 0 7 Z';
+        }
+
+        function frame(now) {
+            const t = (now - t0) / 1000;
+            const spin = t * 5;
+
+            // 숨쉬는 글로우: 우웅우웅 켜졌다 사라졌다
+            const breathe = (Math.sin(t * 1.0) + 1) / 2;               // 0..1, 느린 주기(약 6.3초)
+            const glowPulse = 0.15 + 0.85 * Math.pow(breathe, 1.5);
+            starAmbient.setAttribute('opacity', glowPulse.toFixed(3));
+            starAmbient.setAttribute('r', (30 + 24 * breathe).toFixed(1));
+            starShape.setAttribute('opacity', (0.35 + 0.65 * glowPulse).toFixed(3));
+
+            g += ((sailing ? 0 : 1) - g) * 0.15;
+
+            let tailDeg = 0, trailOp = 0;
+
+            if (sailing) {
+                vel = Math.min(VMAX, vel + ACCEL);
+                traveled += vel;
+                tailDeg = Math.atan2(dirY, dirX) * 180 / Math.PI + 180;
+                if (traveled >= totalDist) {
+                    running = false;
+                    star.setAttribute('transform', 'translate(' + (sx + dirX * totalDist) + ' ' + (sy + dirY * totalDist) + ') rotate(' + spin + ') scale(' + SIZE + ')');
+                    trail.setAttribute('opacity', 0);
+                    window.location.href = href;
+                    return;
+                }
+                x = sx + dirX * traveled;
+                y = sy + dirY * traveled;
+                const remain = totalDist - traveled;
+                trailOp = Math.min(1, Math.min(traveled, remain) / 130);
+            } else {
+                x = homeX + Math.sin(t * 0.18) * 200;
+                y = homeY + Math.sin(t * 0.5) * 14 + Math.sin(t * 0.31) * 8;
+            }
+
+            if ((1 - g) > 0.01) {
+                const L = Math.max(30, Math.min(MAXLEN, traveled * GROW));
+                const W = TAILW * (0.6 + 0.4 * Math.min(1, L / MAXLEN));
+                plume.setAttribute('d', plumePath(L, W));
+                trail.setAttribute('transform', 'translate(' + x + ' ' + y + ') rotate(' + tailDeg + ') scale(' + SIZE + ')');
+                trail.setAttribute('opacity', ((1 - g) * trailOp).toFixed(3));
+            } else {
+                trail.setAttribute('opacity', 0);
+            }
+
+            star.setAttribute('transform', 'translate(' + x + ' ' + y + ') rotate(' + spin + ') scale(' + SIZE + ')');
+            requestAnimationFrame(frame);
+        }
+
+        function startLoop() {
+            if (running) return;
+            running = true;
+            requestAnimationFrame(frame);
+        }
+
+        window.addEventListener('pageshow', function () {
+            sailing = false; traveled = 0; vel = 0; g = 1;
+            x = homeX; y = homeY;
+            trail.setAttribute('opacity', 0);
+            startLoop();
+        });
+
+        startLoop();
+
+        document.querySelectorAll('a.stone-link').forEach(function (a) {
+            a.addEventListener('click', function (e) {
+                e.preventDefault();
+                const tx = parseFloat(a.dataset.x), ty = parseFloat(a.dataset.y);
+                sx = x; sy = y;
+                const dx = tx - sx, dy = ty - sy;
+                totalDist = Math.hypot(dx, dy) || 1;
+                dirX = dx / totalDist; dirY = dy / totalDist;
+                traveled = 0; vel = V0;
+                href = a.getAttribute('href');
+                sailing = true;
+            });
+        });
+    </script>
+
+    <script>
+        /* ── STONE DRIFT: 돌이 물 위에 뜬 것처럼 천천히 표류 ──
+           예전 CSS 키프레임은 4지점을 같은 박자로 왕복해서 기계적으로 보였음.
+           여기서는 주기가 서로 안 맞는 느린 물결 3개를 겹쳐 궤도가 반복되지 않고,
+           기울기는 옆으로 흐르는 속도를 따라 살짝 늦게 따라옴.                 */
+        (function () {
+            if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            // ---------- 세팅 ----------
+            const AMP_X = 26;      // 좌우 최대 흐름 (그림 좌표 px)
+            const AMP_Y = 11;      // 위아래 최대 흐름
+            const TILT  = 0.9;     // 흐를 때 기울어지는 정도(도)
+            const SPEED = 1.0;     // 전체 속도 배율 (작을수록 느긋)
+            const MOBILE_GAIN = 2.6;  // 모바일(767px 이하)에서 움직임 폭 배율 — 그림이 작게 보여서 더 크게
+            // --------------------------
+            const r = (a, b) => a + Math.random() * (b - a);
+            const stones = [...document.querySelectorAll('.stone')].map(el => ({
+                el,
+                ax: AMP_X * r(0.75, 1.15), ay: AMP_Y * r(0.75, 1.2),
+                // 각 돌마다 서로 다른 느린 주기(초) 3개 + 무작위 시작점
+                w: [r(13, 17), r(7.5, 10), r(21, 29)].map(T => 2 * Math.PI / T),
+                p: [r(0, 6.28), r(0, 6.28), r(0, 6.28), r(0, 6.28)],
+                tilt: 0
+            }));
+            const t0 = performance.now();
+            function frame(now) {
+                const t = (now - t0) / 1000 * SPEED;
+                const ease = Math.min(1, t / 2.5)               // 처음 2.5초 동안 서서히 움직이기 시작
+                           * (innerWidth <= 767 ? MOBILE_GAIN : 1);
+                for (const s of stones) {
+                    const [w1, w2, w3] = s.w, [p1, p2, p3, p4] = s.p;
+                    const x = s.ax * (0.62 * Math.sin(w1 * t + p1) + 0.26 * Math.sin(w2 * t + p2) + 0.12 * Math.sin(w3 * t + p3));
+                    const y = s.ay * (0.55 * Math.sin(w1 * 0.83 * t + p4) + 0.30 * Math.sin(w2 * 1.27 * t + p1) + 0.15 * Math.sin(w3 * t + p2));
+                    // 옆으로 흐르는 속도 → 목표 기울기, 부드럽게 따라감
+                    const vx = s.ax * (0.62 * w1 * Math.cos(w1 * t + p1) + 0.26 * w2 * Math.cos(w2 * t + p2));
+                    s.tilt += (TILT * vx / (s.ax * 0.9) - s.tilt) * 0.03;
+                    const sc = 1 + 0.006 * Math.sin(w3 * 1.6 * t + p3);  // 아주 미세한 숨
+                    s.el.style.transform =
+                        `translate(${(x * ease).toFixed(2)}px, ${(y * ease).toFixed(2)}px) rotate(${(s.tilt * Math.min(ease, 1.4)).toFixed(3)}deg) scale(${sc.toFixed(4)})`;
+                }
+                requestAnimationFrame(frame);
+            }
+            requestAnimationFrame(frame);
+        })();
+    </script>
+
+</body>
+</html>
