@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Gowun+Dodum&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;1,6..72,300&family=Gowun+Dodum&display=swap" rel="stylesheet">
   <title>Hyunne — CV</title>
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
     :root {
-      --serif-en: "Cormorant Garamond", "Iowan Old Style", "Times New Roman", serif;
+      --serif-en: "Newsreader", "Iowan Old Style", "Times New Roman", serif;
       --serif-ko: "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
     }
 
@@ -47,7 +47,7 @@
       font-family: var(--serif-en);
       font-size: 64px;
       font-weight: 300;
-      font-style: normal;
+      font-style: italic;
       color: #75481B;
       line-height: 1;
       letter-spacing: 0.5px;
@@ -78,7 +78,7 @@
       top: 250px;
     }
     .intro p + p { margin-top: 14px; }
-    .intro .en { font-family: var(--serif-en); font-style: italic; font-size: 15px; line-height: 1.7; }
+    .intro .en { font-family: var(--serif-en); font-weight: 300; font-size: 15px; line-height: 1.7; }
 
     /* ── 오른쪽: CV ── */
     .cv {
@@ -115,8 +115,8 @@
     .cv-sub {
       font-family: var(--serif-en);
       font-size: 14px;
-      font-style: italic;
-      font-weight: 400;
+      font-style: normal;
+      font-weight: 300;
       line-height: 1.5;
       letter-spacing: 0.2px;
       color: #a09e9b;

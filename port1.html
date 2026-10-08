@@ -6,12 +6,12 @@
 <title>Hyunne — works</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Gowun+Dodum&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;1,6..72,300&family=Gowun+Dodum&display=swap">
 <style>
 /* Layout: single-screen gallery. One painting dead centre at a shared height, arrows fixed beside the widest work, index 00–05 along the foot. */
 :root{
   --paper:#fcfdfa; --ink:#28322e; --mute:#7a857f; --moss:#1f5a53; --veil:rgba(20,28,25,.62); --veil-ink:#f1f3ee; --arrow:#2f4fb8;
-  --serif-en:"Cormorant Garamond","Iowan Old Style","Times New Roman",serif;
+  --serif-en:"Newsreader","Iowan Old Style","Times New Roman",serif;
   --serif-ko:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   color-scheme:light;
 }
@@ -26,7 +26,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif-ko);-webki
 img{max-width:100%}
 
 header{display:flex;justify-content:space-between;align-items:baseline;padding-block:22px 0}
-header a{color:var(--ink);text-decoration:none;font-family:var(--serif-en);font-style:normal;font-size:24px;font-weight:300}
+header a{color:var(--ink);text-decoration:none;font-family:var(--serif-en);font-style:italic;font-size:24px;font-weight:300}
 .count{font-family:var(--serif-en);font-size:15px;color:var(--mute);letter-spacing:.08em;font-variant-numeric:tabular-nums}
 
 .stage{position:relative;display:flex;align-items:center;justify-content:center;gap:var(--gap,28px);min-height:0}
@@ -39,7 +39,7 @@ header a{color:var(--ink);text-decoration:none;font-family:var(--serif-en);font-
 .info{position:absolute;left:0;right:0;bottom:0;padding:18px 20px 16px;background:var(--veil);color:var(--veil-ink);
   display:grid;gap:4px;opacity:0;transform:translateY(4px);transition:opacity .4s ease,transform .4s ease;pointer-events:none}
 .art:hover .info,.frame.show .info,.frame:focus-within .info{opacity:1;transform:none}
-.info .t{font-family:var(--serif-en);font-style:italic;font-size:20px;line-height:1.2}
+.info .t{font-family:var(--serif-en);font-weight:300;font-size:20px;line-height:1.2}
 .info .m{font-size:13px;letter-spacing:.02em;opacity:.85}
 
 .arrow{flex:none;background:none;border:0;color:var(--arrow);
