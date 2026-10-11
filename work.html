@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hyunne — work</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;1,6..72,300&family=Gowun+Dodum&display=swap">
+<style>
+/* Layout: one work, as large as the screen allows, caption beneath; back to the drum top-left, neighbours at the foot. */
+:root{
+  --paper:#fcfdfa; --ink:#28322e; --mute:#7a857f; --moss:#1f5a53;
+  --serif-en:"Newsreader","Iowan Old Style","Times New Roman",serif;
+  --serif-ko:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#121816;--ink:#dde2db;--mute:#859089;--moss:#8fbdb3;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#121816;--ink:#dde2db;--mute:#859089;--moss:#8fbdb3;color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif-ko);-webkit-font-smoothing:antialiased;
+  display:grid;grid-template-rows:auto 1fr auto auto;grid-template-columns:minmax(0,1fr);min-height:100%;
+  padding:env(safe-area-inset-top,0px) 20px env(safe-area-inset-bottom,0px)}
+
+header{display:flex;justify-content:space-between;align-items:baseline;padding-block:22px 0}
+header a{color:var(--ink);text-decoration:none;font-family:var(--serif-en);font-style:italic;font-size:24px;font-weight:300}
+.count{font-family:var(--serif-en);font-size:15px;color:var(--mute);letter-spacing:.08em;font-variant-numeric:tabular-nums}
+
+figure{margin:0;display:flex;align-items:center;justify-content:center;min-height:0;padding-block:24px 0}
+figure img{display:block;max-width:100%;max-height:calc(100vh - 230px);width:auto;height:auto;
+  animation:in .8s cubic-bezier(.2,.7,.2,1) both}
+@keyframes in{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+
+.caption{text-align:center;padding-top:18px;display:grid;gap:4px}
+.caption .t{font-family:var(--serif-en);font-weight:300;font-size:22px;line-height:1.2}
+.caption .m{font-size:13px;color:var(--mute);letter-spacing:.02em}
+
+nav.step{display:flex;justify-content:space-between;align-items:baseline;padding-block:20px 26px;
+  font-family:var(--serif-en);font-size:17px;letter-spacing:.06em;font-variant-numeric:tabular-nums}
+nav.step a{color:var(--mute);text-decoration:none;padding:6px 2px;border-bottom:1px solid transparent;transition:color .3s,border-color .3s}
+nav.step a:hover,nav.step a:focus-visible{color:var(--ink);border-color:var(--ink);outline:none}
+
+@media (prefers-reduced-motion:reduce){figure img{animation:none}}
+</style>
+</head>
+<body>
+<header>
+  <a href="port1.html">← works</a>
+  <span class="count" id="count"></span>
+</header>
+
+<figure><img id="img" alt=""></figure>
+<div class="caption"><span class="t" id="t"></span><span class="m" id="m"></span></div>
+
+<nav class="step" aria-label="다른 작품">
+  <a id="prev" rel="prev"></a>
+  <a id="next" rel="next"></a>
+</nav>
+
+<script src="works.js"></script>
+<script>
+const pad = n => String(n).padStart(2,"0");
+const $ = id => document.getElementById(id);
+const N = WORKS.length;
+let i = parseInt(new URLSearchParams(location.search).get("w"), 10);
+if(!(i >= 0 && i < N)) i = 0;
+const w = WORKS[i], p = (i-1+N)%N, n = (i+1)%N;
+
+document.title = `${w.title} — Hyunne`;
+$("img").src = w.src; $("img").alt = `${w.title}, Hyunne`;
+$("t").textContent = w.title; $("m").textContent = w.meta;
+$("count").textContent = `${pad(i)} / ${pad(N-1)}`;
+$("prev").href = `work.html?w=${pad(p)}`; $("prev").textContent = `‹ ${pad(p)}`;
+$("next").href = `work.html?w=${pad(n)}`; $("next").textContent = `${pad(n)} ›`;
+addEventListener("keydown",e=>{
+  if(e.key==="ArrowLeft") location.href=$("prev").href;
+  if(e.key==="ArrowRight") location.href=$("next").href;
+  if(e.key==="Escape") location.href="port1.html";
+});
+</script>
+</body>
+</html>
