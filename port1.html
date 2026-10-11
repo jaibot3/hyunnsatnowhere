@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;1,6..72,300&family=Gowun+Dodum&display=swap">
 <style>
-/* Layout: single-screen gallery. Works are 3D planes in one perspective row that slides as a whole; current work dead centre at a shared height, arrows fixed beside the widest work, index along the foot. */
+/* Layout: single-screen gallery. Works are camera-facing planes on a vertical orbit (a slowly rolling drum); hover pauses and captions, click opens the work. */
 :root{
   --paper:#fcfdfa; --ink:#28322e; --mute:#7a857f; --moss:#1f5a53; --veil:rgba(20,28,25,.62); --veil-ink:#f1f3ee; --arrow:#2f4fb8;
   --serif-en:"Newsreader","Iowan Old Style","Times New Roman",serif;
@@ -23,157 +23,129 @@ html,body{height:100%;margin:0}
 body{background:var(--paper);color:var(--ink);font-family:var(--serif-ko);-webkit-font-smoothing:antialiased;
   display:grid;grid-template-rows:auto 1fr auto;grid-template-columns:minmax(0,1fr);overflow:hidden;
   padding:env(safe-area-inset-top,0px) 20px env(safe-area-inset-bottom,0px)}
-img{max-width:100%}
 
-header{display:flex;justify-content:space-between;align-items:baseline;padding-block:22px 0}
+header{display:flex;justify-content:space-between;align-items:baseline;padding-block:22px 0;position:relative;z-index:2}
 header a{color:var(--ink);text-decoration:none;font-family:var(--serif-en);font-style:italic;font-size:24px;font-weight:300}
 .count{font-family:var(--serif-en);font-size:15px;color:var(--mute);letter-spacing:.08em;font-variant-numeric:tabular-nums}
 
-.stage{position:relative;display:flex;align-items:center;justify-content:center;gap:var(--gap,28px);min-height:0}
-.frame{height:var(--h,60vh);width:var(--w,60vh);flex:none;pointer-events:none}   /* spacer: keeps arrows beside the widest work */
-.track{position:absolute;inset:0 -20px;overflow:hidden;perspective:1500px;perspective-origin:50% 50%}
-.plane{position:absolute;left:50%;top:50%;margin:0;height:var(--h,60vh);width:calc(var(--h,60vh) * var(--r,1));
-  transform:translate(-50%,-50%) translate3d(var(--x,0),0,var(--z,0)) rotateY(var(--ry,0deg));opacity:var(--o,0);
-  transition:transform 1.15s cubic-bezier(.7,0,.25,1),opacity .9s ease;cursor:pointer;will-change:transform}
-.plane img{display:block;width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-drag:none;
-  box-shadow:0 24px 48px -30px rgba(0,0,0,.45)}
-.plane.on{cursor:default;outline:none}
-.plane.far{visibility:hidden;transition:transform 1.15s cubic-bezier(.7,0,.25,1),opacity .9s ease,visibility 0s .9s}
+.stage{position:relative;min-height:0;margin-inline:-20px;overflow:hidden;perspective:1600px;perspective-origin:50% 50%;
+  touch-action:pan-x;cursor:grab;user-select:none}
+.stage.drag{cursor:grabbing}
+.plane{position:absolute;left:50%;top:50%;display:block;overflow:hidden;width:var(--pw);height:var(--ph);
+  margin:calc(var(--ph) / -2) 0 0 calc(var(--pw) / -2);will-change:transform;
+  box-shadow:0 22px 44px -30px rgba(0,0,0,.45)}
+.plane img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none;
+  transform:scale(1.001);transition:transform .9s cubic-bezier(.2,.7,.2,1)}
+.plane:hover img,.plane:focus-visible img{transform:scale(1.08)}   /* frame keeps its size; only the picture leans in */
+.plane:focus-visible{outline:1px solid var(--moss);outline-offset:4px}
 
-.info{position:absolute;left:0;right:0;bottom:0;padding:18px 20px 16px;background:var(--veil);color:var(--veil-ink);
-  display:grid;gap:4px;opacity:0;transform:translateY(4px);transition:opacity .4s ease,transform .4s ease;pointer-events:none}
-.plane.on:hover .info,.plane.on.show .info,.plane.on:focus-visible .info{opacity:1;transform:none}
-.info .t{font-family:var(--serif-en);font-weight:300;font-size:20px;line-height:1.2}
-.info .m{font-size:13px;letter-spacing:.02em;opacity:.85}
+.info{position:absolute;left:0;right:0;bottom:0;padding:14px 16px 12px;background:var(--veil);color:var(--veil-ink);
+  display:grid;gap:3px;opacity:0;transform:translateY(4px);transition:opacity .4s ease,transform .4s ease;pointer-events:none}
+.plane:hover .info,.plane:focus-visible .info{opacity:1;transform:none}
+.info .t{font-family:var(--serif-en);font-weight:300;font-size:18px;line-height:1.2}
+.info .m{font-size:12px;letter-spacing:.02em;opacity:.85}
 
-.arrow{position:relative;z-index:2;flex:none;background:none;border:0;color:var(--arrow);
-  font-family:var(--serif-en);font-size:102px;font-weight:300;line-height:.8;padding:12px 6px;cursor:pointer;opacity:.75;transition:opacity .3s}
-.arrow:hover,.arrow:focus-visible{opacity:1;outline:none}
-.arrow:focus-visible{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:1px}
-
-
-nav.index{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 16px;padding-block:18px 26px}
-nav.index button{background:none;border:0;padding:6px 2px;cursor:pointer;color:var(--mute);
+nav.index{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 16px;padding-block:18px 26px;position:relative;z-index:2}
+nav.index a{padding:6px 2px;color:var(--mute);text-decoration:none;
   font-family:var(--serif-en);font-size:17px;letter-spacing:.06em;font-variant-numeric:tabular-nums;
   border-bottom:1px solid transparent;transition:color .3s,border-color .3s}
-nav.index button:hover,nav.index button:focus-visible{color:var(--ink);outline:none}
-nav.index button[aria-current="true"]{color:var(--moss);border-color:var(--moss)}
+nav.index a:hover,nav.index a:focus-visible{color:var(--ink);outline:none}
+nav.index a[aria-current="true"]{color:var(--moss);border-color:var(--moss)}
 
-@media (max-width:600px){:root{--gap:2px}.arrow{font-size:64px;padding:8px 0}nav.index{gap:4px 14px}}
-@media (prefers-reduced-motion:reduce){.plane,.info{transition:none}}
+@media (max-width:600px){nav.index{gap:4px 14px}}
+@media (prefers-reduced-motion:reduce){.plane img,.info{transition:none}}
 </style>
 </head>
 <body>
 <header>
   <a href="index.html">Hyunne</a>
-  <span class="count" id="count" aria-live="polite">00 / 14</span>
+  <span class="count" id="count" aria-live="off">00 / 14</span>
 </header>
 
-<section class="stage" id="stage" aria-roledescription="carousel" aria-label="작품">
-  <div class="track" id="track"></div>
-  <button class="arrow prev" id="prev" aria-label="이전 작품">‹</button>
-  <div class="frame" id="frame" aria-hidden="true"></div>
-  <button class="arrow next" id="next" aria-label="다음 작품">›</button>
-</section>
+<section class="stage" id="stage" aria-label="작품"></section>
 
 <nav class="index" id="index" aria-label="작품 번호"></nav>
 
+<script src="works.js"></script>
 <script>
-// 작품 정보: 제목·연도·재료·크기를 여기서 채우면 됩니다.
-const WORKS = [
-  {src:"works/a00.jpg", title:"Untitled 00", meta:"hanji / Korean watercolour"},
-  {src:"works/a01.jpg", title:"Untitled 01", meta:"hanji / Korean watercolour"},
-  {src:"works/a02.jpg", title:"Untitled 02", meta:"hanji / Korean watercolour"},
-  {src:"works/a03.jpg", title:"Untitled 03", meta:"hanji / Korean watercolour"},
-  {src:"works/a04.jpg", title:"Untitled 04", meta:"hanji / Korean watercolour"},
-  {src:"works/a05.jpg", title:"Untitled 05", meta:"hanji / Korean watercolour"},
-  {src:"works/a06.jpg", title:"Untitled 06", meta:"hanji / Korean watercolour"},
-  {src:"works/a07.jpg", title:"Untitled 07", meta:"hanji / Korean watercolour"},
-  {src:"works/a08.jpg", title:"Untitled 08", meta:"hanji / Korean watercolour"},
-  {src:"works/w00.jpg", title:"Untitled 09", meta:"hanji / Korean watercolour"},
-  {src:"works/w01.jpg", title:"Untitled 10", meta:"hanji / Korean watercolour"},
-  {src:"works/w02.jpg", title:"Untitled 11", meta:"hanji / Korean watercolour"},
-  {src:"works/w03.jpg", title:"Untitled 12", meta:"hanji / Korean watercolour"},
-  {src:"works/w04.jpg", title:"Untitled 13", meta:"hanji / Korean watercolour"},
-  {src:"works/w05.jpg", title:"Untitled 14", meta:"hanji / Korean watercolour"},
-];
 const pad = n => String(n).padStart(2,"0");
 const $ = id => document.getElementById(id);
-const idx=$("index"), stage=$("stage"), track=$("track"), N=WORKS.length;
-let cur=0, ratios=WORKS.map(()=>1);
+const stage=$("stage"), idx=$("index"), N=WORKS.length;
+const STEP = 2*Math.PI/N;
+const PERIOD = 90;                       // seconds for one full turn: slow roll
+const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-// Slide: every work is a plane in one perspective row; moving re-poses all planes at once, so the row glides past.
-const planes=WORKS.map((w,i)=>{
-  const f=document.createElement("figure"); f.className="plane far";
-  f.innerHTML=`<img src="${w.src}" alt="${w.title}, Hyunne" draggable="false"><figcaption class="info"><span class="t"></span><span class="m"></span></figcaption>`;
-  f.querySelector(".t").textContent=w.title; f.querySelector(".m").textContent=w.meta;
-  f.onclick=()=>{ if(i===cur) f.classList.toggle("show"); else go(i); };
-  track.appendChild(f); return f;
+// planes: camera-facing pictures, each a link to its detail page
+const planes = WORKS.map((w,i)=>{
+  const a=document.createElement("a"); a.className="plane"; a.href=`work.html?w=${pad(i)}`;
+  a.setAttribute("aria-label",`${w.title} 자세히 보기`);
+  a.innerHTML=`<img alt="${w.title}, Hyunne" draggable="false"><span class="info"><span class="t"></span><span class="m"></span></span>`;
+  const im=a.querySelector("img"); im.src=w.src;
+  im.onload=()=>{ a.dataset.r = im.naturalWidth/im.naturalHeight; size(a); };
+  a.querySelector(".t").textContent=w.title; a.querySelector(".m").textContent=w.meta;
+  a.addEventListener("click",e=>{ if(moved) e.preventDefault(); });
+  stage.appendChild(a); return a;
+});
+WORKS.forEach((w,i)=>{
+  const l=document.createElement("a"); l.href=`work.html?w=${pad(i)}`; l.textContent=pad(i);
+  l.setAttribute("aria-label",`${pad(i)}번 작품`); idx.appendChild(l);
 });
 
-// preload + measure aspect ratios so every work shares one height
-Promise.all(WORKS.map((w,i)=>new Promise(r=>{const im=new Image();im.onload=()=>{ratios[i]=im.naturalWidth/im.naturalHeight;r()};im.onerror=r;im.src=w.src}))).then(()=>{fit();});
-
-let H=400;
+// geometry: plane size and orbit radius follow the stage height
+let S=200, R=300;
+function size(a){
+  const r=+a.dataset.r||1, k=Math.sqrt(r);              // equal area, so wide and tall works weigh the same
+  a.style.setProperty("--pw", S*k+"px"); a.style.setProperty("--ph", S/k+"px");
+}
 function fit(){
-  const r = Math.max(...ratios, 1);
-  const gap = parseFloat(getComputedStyle(stage).columnGap) || 0;
-  const side = $("prev").offsetWidth + $("next").offsetWidth + gap * 2;   // room for the arrows
-  const availW = document.documentElement.clientWidth - 40 - side;   // 20px gutters
-  const availH = stage.clientHeight - 12;
-  H = Math.max(80, Math.min(availH, availW / r, 720));
-  stage.style.setProperty("--h", H + "px");
-  stage.style.setProperty("--w", (H * r) + "px");   // arrows stay put: spacer = widest work
-  planes.forEach((p,i)=>p.style.setProperty("--r", ratios[i]));
-  layout();
+  const h=stage.clientHeight, w=stage.clientWidth;
+  // keep the whole drum inside the stage: top/bottom plane at y=±R, front plane magnified by perspective
+  S = Math.min(h*.30, w*.55);
+  R = h*.5 - S*.75;
+  planes.forEach(size); draw();
 }
 addEventListener("resize", fit);
 
-const off = i => ((i-cur)%N + N + Math.floor(N/2)) % N - Math.floor(N/2);   // shortest signed distance from current
-function layout(){
-  const narrow = innerWidth < 600, step = H*(narrow?.06:.12);
+// orbit: y-z circle; θ=0 is nearest the viewer
+let theta=0, paused=false, last=0, front=-1;
+function draw(){
+  let best=-1, bz=-Infinity;
   planes.forEach((p,i)=>{
-    const d=off(i), a=Math.abs(d), sg=Math.sign(d);
-    // x: walk outward over half-widths so mixed portrait/landscape works never overlap
-    let x=0; for(let k=1;k<=a;k++){ const j=(cur+sg*k+N)%N, prev=(cur+sg*(k-1)+N)%N;
-      x += (ratios[prev]*H/2)*(k===1?1:.55) + (ratios[j]*H/2)*.55 + step; }
-    p.style.setProperty("--x", sg*x + "px");
-    p.style.setProperty("--z", -Math.min(a,4)*H*.45 + "px");
-    p.style.setProperty("--ry", -sg*Math.min(a,1)*38 + "deg");
-    p.style.setProperty("--o", a===0?1 : a===1?.9 : a===2?.55 : 0);
-    p.style.zIndex = 10-a;
-    p.classList.toggle("on", a===0); p.classList.toggle("far", a>2);
-    if(a!==0) p.classList.remove("show");
-    p.tabIndex = a===0 ? 0 : -1; p.setAttribute("aria-hidden", a!==0);
+    const t = theta + i*STEP, y = -Math.sin(t)*R, z = Math.cos(t)*R;
+    p.style.transform = `translate3d(0,${y.toFixed(1)}px,${z.toFixed(1)}px)`;
+    p.style.zIndex = Math.round(z+R);
+    p.tabIndex = z > 0 ? 0 : -1;
+    if(z>bz){bz=z;best=i}
   });
+  if(best!==front){
+    front=best; $("count").textContent=`${pad(front)} / ${pad(N-1)}`;
+    [...idx.children].forEach((l,i)=>l.setAttribute("aria-current", i===front));
+  }
+}
+function tick(now){
+  const dt = last ? Math.min((now-last)/1000, .1) : 0; last=now;
+  if(!paused && !dragging && !still) theta -= dt*2*Math.PI/PERIOD;   // front works roll upward
+  draw(); requestAnimationFrame(tick);
 }
 
-WORKS.forEach((w,i)=>{
-  const b=document.createElement("button");
-  b.textContent=pad(i); b.setAttribute("aria-label",`${pad(i)}번 작품`);
-  b.onclick=()=>go(i); idx.appendChild(b);
+// hover or keyboard focus on a plane holds the drum still so the caption can be read
+stage.addEventListener("pointerover",e=>{ if(e.pointerType==="mouse") paused=!!e.target.closest(".plane"); });
+stage.addEventListener("pointerleave",()=>{ paused=false; });
+stage.addEventListener("focusin",()=>{ paused=true; });
+stage.addEventListener("focusout",()=>{ paused=false; });
+
+// drag vertically to roll it by hand
+let dragging=false, moved=false, py=0;
+stage.addEventListener("pointerdown",e=>{ dragging=true; moved=false; py=e.clientY; });
+addEventListener("pointermove",e=>{
+  if(!dragging) return; const dy=e.clientY-py;
+  if(Math.abs(dy)>4){ moved=true; stage.classList.add("drag"); }
+  if(moved){ theta -= dy/R; py=e.clientY; }
 });
+addEventListener("pointerup",()=>{ dragging=false; stage.classList.remove("drag"); setTimeout(()=>moved=false,0); });
+stage.addEventListener("wheel",e=>{ e.preventDefault(); theta -= e.deltaY/(R*3); },{passive:false});
 
-function render(){
-  $("count").textContent=`${pad(cur)} / ${pad(N-1)}`;
-  [...idx.children].forEach((b,i)=>b.setAttribute("aria-current", i===cur));
-}
-function go(i){
-  i=(i+N)%N; if(i===cur) return;
-  cur=i; layout(); render();
-}
-$("prev").onclick=()=>go(cur-1);
-$("next").onclick=()=>go(cur+1);
-addEventListener("keydown",e=>{if(e.key==="ArrowLeft")go(cur-1);if(e.key==="ArrowRight")go(cur+1)});
-
-// touch: swipe to move (tap is handled by the plane's own click)
-let sx=null;
-stage.addEventListener("touchstart",e=>{sx=e.touches[0].clientX},{passive:true});
-stage.addEventListener("touchend",e=>{
-  if(sx===null)return; const dx=e.changedTouches[0].clientX-sx; sx=null;
-  if(Math.abs(dx)>40){ e.preventDefault(); go(cur+(dx<0?1:-1)); }
-});
-fit(); render();
+fit(); requestAnimationFrame(tick);
 </script>
 </body>
 </html>
